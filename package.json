@@ -1,6 +1,6 @@
 {
   "name": "searchme",
-  "version": "1.2",
+  "version": "1.2.0",
   "private": true,
   "engines": {
     "npm" : "6.5.0",
