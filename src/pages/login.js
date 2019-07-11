@@ -23,12 +23,12 @@ export default class Login extends React.Component {
                             <i className="lock icon"></i>
                             Login with GroupMe!
                         </button><br /><br /><br />
-                        <div className="ui basic icon input">
-                            {/*<input type="password" placeholder="Or enter access token directly..." style={{ fontSize: "10px", width: "12pc" }} value={this.state.token} onChange={this.handleChange} />*/}
+                        {/*<div className="ui basic icon input">
+                            {/*<input type="password" placeholder="Or enter access token directly..." style={{ fontSize: "10px", width: "12pc" }} value={this.state.token} onChange={this.handleChange} />
                             <button className="ui basic icon button" onClick={this.login} >
                                 Submit
                             </button>
-                        </div>
+                        </div>*/}
                     </div>
                 </div>
                 <center style={{ width: "100%" }}>
