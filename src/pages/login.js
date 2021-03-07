@@ -5,7 +5,7 @@ import banner from "../assets/SearchMe_Text.png";
 
 export default class Login extends React.Component {
     login = () => {
-        window.location.href = "https://oauth.groupme.com/oauth/authorize?client_id=7QBCn4P7fvHAwsibvBFzYpIy8f1tNmI8LMHNcTcV0spo85F0";
+        window.location.href = "https://oauth.groupme.com/oauth/authorize?client_id=LFz4dlw1FIFo2XdrXKVTpCCJg9cuSYg90BLwtPEEbOA4lL4H";
     }
 
     render() {

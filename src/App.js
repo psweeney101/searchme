@@ -38,7 +38,7 @@ export default class App extends React.Component {
         if (!this.state.access_token) {
             return <Redirect to="/" />;
         }
-        return <Directory access_token={this.state.access_token}/>;
+        return <Directory access_token={this.state.access_token} />;
     }
 
     dm = ({ match }) => {
