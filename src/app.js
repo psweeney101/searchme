@@ -28,7 +28,7 @@ export default class App extends React.Component {
             this.cookies.set("SearchMe", this.params.get("access_token"), {
                 maxAge: 3600 * 24 * 30, // 1 Month
                 path: "/",
-                secure: true
+                secure: process.env.NODE_ENV !== 'development',
             });
         }
         return <Redirect to="/" />;
@@ -72,7 +72,7 @@ export default class App extends React.Component {
         this.cookies.remove("SearchMe", {
             maxAge: 3600 * 24 * 30, // 1 Month
             path: "/",
-            secure: true
+            secure: process.env.NODE_ENV !== 'development',
         });
         this.setState({
             access_token: undefined

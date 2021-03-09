@@ -49,6 +49,9 @@ const GroupMeService = {
                 loaded(messages.length);
                 if(messages.length === total_messages) {
                     return cb(messages);
+                } else if (response.data.response.direct_messages.length === 0) {
+                    alert(`GroupMe refused to return all of the messages. You will still be able to search ${messages.length} of your ${total_messages} messages. This is a GroupMe issue and it is likely that the remaining ${total_messages - messages.length} messages are not available on the GroupMe App either.`);
+                    return cb(messages);
                 } else {
                     fetchBatch(messages[messages.length - 1].id);
                 }
@@ -89,6 +92,9 @@ const GroupMeService = {
                 messages = messages.concat(response.data.response.messages);
                 loaded(messages.length);
                 if(messages.length === total_messages) {
+                    return cb(messages);
+                } else if (response.data.response.messages.length === 0) {
+                    alert(`GroupMe refused to return all of the messages in this group. You will still be able to search ${messages.length} of your ${total_messages} messages. This is a GroupMe issue and it is likely that the remaining ${total_messages - messages.length} messages are not available on the GroupMe App either.`);
                     return cb(messages);
                 } else {
                     fetchBatch(messages[messages.length - 1].id);
