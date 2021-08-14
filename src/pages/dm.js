@@ -42,7 +42,7 @@ export default class DM extends React.Component {
                     loaded: `0 / ${dm.messages_count}`,
                     me: me
                 }, () => {
-                    GroupMeService.getDmMessages(this.props.access_token, this.state.dm.other_user.id, this.state.dm.messages_count, (messages) => {
+                    GroupMeService.getDmMessages(this.props.access_token, this.state.dm.other_user.id, (messages) => {
                         this.messageService.setMessages(messages);
                         this.fetchMessages();
                         this.setState({
@@ -117,6 +117,7 @@ export default class DM extends React.Component {
                 <center style={{ width: "100%" }}>
                     <br /> Powered by GroupMe®<br />
                     <Link to="/about">About SearchMe</Link><br />
+                    <a href="https://www.buymeacoffee.com/psweeney101" target="_blank">☕ Buy Me A Coffee</a><br />
                     <Link to="/logout">Logout</Link><br />
                     <br /><br />
                 </center>

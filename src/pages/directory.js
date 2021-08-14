@@ -71,6 +71,7 @@ export default class Directory extends React.Component {
             <center style={{ width: "100%" }}>
                 <br /> Powered by GroupMe®<br />
                     <Link to="/about">About SearchMe</Link><br />
+                    <a href="https://www.buymeacoffee.com/psweeney101" target="_blank">☕ Buy Me A Coffee</a><br />
                     <Link to="/logout">Logout</Link><br />
                 <br /><br />
             </center>

@@ -29,7 +29,7 @@ class Message extends React.Component {
                                 <div className="summary">
                                     <span className="userName">{this.props.message.name}</span>
                                     <div className="date">
-                                        <div className="dateLink">{moment(new Date(this.props.message.created_at * 1000)).format("MMM DD YYYY h:mm A")}</div>
+                                        <div>{moment(new Date(this.props.message.created_at * 1000)).format("MMM DD YYYY h:mm A")}</div>
                                     </div>
                                 </div>
                                 <div className="extra text">

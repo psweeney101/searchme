@@ -1,0 +1,9 @@
+.login .ui.horizontal.divider:before {
+  top: 10%;
+}
+.login .ui.horizontal.divider:after {
+  top: 10%;
+}
+i.icon.coffee:before {
+  margin-left: -1.5px;
+}

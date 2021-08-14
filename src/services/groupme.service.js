@@ -41,16 +41,13 @@ const GroupMeService = {
             }));
         })
     },
-    getDmMessages: (access_token, user_id, total_messages, cb, loaded) => {
+    getDmMessages: (access_token, user_id, cb, loaded) => {
         var messages = [];
         let fetchBatch = (before_id) => {
-            axios.get(`${url}/direct_messages?other_user_id=${user_id}&token=${access_token}&before_id=${before_id}`).then((response) => {
-                messages = messages.concat(response.data.response.direct_messages);
+            axios.get(`${url}/direct_messages?other_user_id=${user_id}&token=${access_token}&limit=100&before_id=${before_id}`).then((response) => {
+                messages.push(...response.data.response.direct_messages);
                 loaded(messages.length);
-                if(messages.length === total_messages) {
-                    return cb(messages);
-                } else if (response.data.response.direct_messages.length === 0) {
-                    alert(`GroupMe refused to return all of the messages. You will still be able to search ${messages.length} of your ${total_messages} messages. This is a GroupMe issue and it is likely that the remaining ${total_messages - messages.length} messages are not available on the GroupMe App either.`);
+                if(response.data.response.direct_messages.length < 100) {
                     return cb(messages);
                 } else {
                     fetchBatch(messages[messages.length - 1].id);
@@ -85,16 +82,13 @@ const GroupMeService = {
             GroupMeService.getGroup(access_token, group_id, cb);
         });
     },
-    getGroupMessages: (access_token, group_id, total_messages, cb, loaded) => {
+    getGroupMessages: (access_token, group_id, cb, loaded) => {
         var messages = [];
         let fetchBatch = (before_id) => {
             axios.get(`${url}/groups/${group_id}/messages?token=${access_token}&limit=100&before_id=${before_id}`).then((response) => {
-                messages = messages.concat(response.data.response.messages);
+                messages.push(...response.data.response.messages);
                 loaded(messages.length);
-                if(messages.length === total_messages) {
-                    return cb(messages);
-                } else if (response.data.response.messages.length === 0) {
-                    alert(`GroupMe refused to return all of the messages in this group. You will still be able to search ${messages.length} of your ${total_messages} messages. This is a GroupMe issue and it is likely that the remaining ${total_messages - messages.length} messages are not available on the GroupMe App either.`);
+                if(response.data.response.messages.length < 100) {
                     return cb(messages);
                 } else {
                     fetchBatch(messages[messages.length - 1].id);

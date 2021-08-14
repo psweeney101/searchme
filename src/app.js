@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import Cookies from "universal-cookie";
-
+import css from "./app.css";
 import About from "./pages/about";
 import Directory from "./pages/directory";
 import DM from "./pages/dm";
