@@ -88,6 +88,21 @@ export default class DM extends React.Component {
         });
     }
 
+    jumpToMessage = (message) => {
+        this.setState({ search: "", sort: "most_recent" });
+        this.filter.clear();
+
+        setTimeout(() => {
+            const index = Math.floor(this.messageService.messages.findIndex(m => m.id === message.id) / this.state.size);
+            this.setState({ index }, this.fetchMessages);
+
+            const el = document.getElementById(message.id);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    }
+
     render() {
         if(!this.state.dm) return null;
         return (
@@ -106,7 +121,7 @@ export default class DM extends React.Component {
                 {/*.....numeber messages loaded....page index...............page index.............number of filtered messsages.........*/}
                 <Status loaded={this.state.loaded} index={this.state.index} size={this.state.size} unpagedLength={this.state.unpagedLength} />
                 {/*............................................message data......group members......................search value...............key...............*/}
-                {this.state.messages.map((message) => <Message message={message} members={[{user_id: this.state.dm.other_user.id, nickname: this.state.dm.other_user.name, image_url: this.state.dm.other_user.avatar_url}, {user_id: this.state.me.id, nickname: this.state.me.name, image_url: this.state.me.avatar_url}]} search={this.state.search} key={message.id} />)}
+                {this.state.messages.map((message) => <Message message={message} members={[{user_id: this.state.dm.other_user.id, nickname: this.state.dm.other_user.name, image_url: this.state.dm.other_user.avatar_url}, {user_id: this.state.me.id, nickname: this.state.me.name, image_url: this.state.me.avatar_url}]} search={this.state.search} jumpToMessage={this.jumpToMessage} key={message.id} />)}
                 <br /><br />
                 {/*.........paginate functions.......page index............,..page index.............number of filtered messsages.........*/}
                 <Paginator paginate={this.paginate} index={this.state.index} size={this.state.size} unpagedLength={this.state.unpagedLength} />

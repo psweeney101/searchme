@@ -28,7 +28,7 @@ class Message extends React.Component {
                             <div className="content" style={{ width: "calc(100% - 2.5em)" }}>
                                 <div className="summary">
                                     <span className="userName">{this.props.message.name}</span>
-                                    <div className="date">
+                                    <div className="date" onClick={() => this.props.jumpToMessage(this.props.message)}>
                                         <div>{moment(new Date(this.props.message.created_at * 1000)).format("MMM DD YYYY h:mm A")}</div>
                                     </div>
                                 </div>

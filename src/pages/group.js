@@ -84,6 +84,21 @@ export default class Group extends React.Component {
         });
     }
 
+    jumpToMessage = (message) => {
+        this.setState({ search: "", sort: "most_recent" });
+        this.filter.clear();
+
+        setTimeout(() => {
+            const index = Math.floor(this.messageService.messages.findIndex(m => m.id === message.id) / this.state.size);
+            this.setState({ index }, this.fetchMessages);
+
+            const el = document.getElementById(message.id);
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        });
+    }
+
     render() {
         if(!this.state.group) return null;
         return (
@@ -101,8 +116,8 @@ export default class Group extends React.Component {
                 <Sort sort={this.sort} value={this.state.sort} />
                 {/*.....numeber messages loaded....page index...............page index.............number of filtered messsages.........*/}
                 <Status loaded={this.state.loaded} index={this.state.index} size={this.state.size} unpagedLength={this.state.unpagedLength} />
-                {/*............................................message data......group members......................search value...............key...............*/}
-                {this.state.messages.map((message) => <Message message={message} members={this.state.group.members} search={this.state.search} key={message.id} />)}
+                {/*............................................message data......group members......................search value...............jump to message function...........key...............*/}
+                {this.state.messages.map((message) => <Message message={message} members={this.state.group.members} search={this.state.search} jumpToMessage={this.jumpToMessage} key={message.id} />)}
                 <br /><br />
                 {/*.........paginate functions.......page index............,..page index.............number of filtered messsages.........*/}
                 <Paginator paginate={this.paginate} index={this.state.index} size={this.state.size} unpagedLength={this.state.unpagedLength} />
