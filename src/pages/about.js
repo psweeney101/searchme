@@ -45,7 +45,7 @@ class About extends React.Component {
                             </div>
                             <div className="meta">
                                 <span>
-                                    SearchMe is hosted on Heroku and directly linked to my <a href="https://github.com/psweeney101/searchme">GitHub repository</a>.
+                                    SearchMe is hosted on Vercel and directly linked to my <a href="https://github.com/psweeney101/searchme">GitHub repository</a>.
                             </span>
                             </div>
                             <br />

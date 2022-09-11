@@ -7,7 +7,7 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <div class="login" style={container}>
+      <div className="login" style={container}>
         <div style={bannerContainer}>
           <img src={banner} style={bannerImg}></img>
         </div>
@@ -15,7 +15,7 @@ export default class Login extends React.Component {
           <div style={logoContainer}>
             <img src={logo} style={logoImg}></img>
           </div>
-          <div class="ui header" style={subtitle}>
+          <div className="ui header" style={subtitle}>
             Search your GroupMe messages
           </div>
           <a className="ui button" style={loginButton} href={this.groupmeUrl}>
@@ -25,18 +25,18 @@ export default class Login extends React.Component {
         </div>
         <div style={extra}>
           <span style={{ flex: 1 }}></span>
-          <div class="ui horizontal divider" style={learnMore}>
+          <div className="ui horizontal divider" style={learnMore}>
             Learn More
           </div>
           <div style={links}>
-            <a class="ui circular icon button" style={link} href="/about">
-              <i class="info circle icon" style={linkIcon}></i>
+            <a className="ui circular icon button" style={link} href="/about">
+              <i className="info circle icon" style={linkIcon}></i>
             </a>
-            <a class="ui circular icon button" style={link} href="https://github.com/psweeney101/SearchMe" target="_blank">
-              <i class="github icon" style={linkIcon}></i>
+            <a className="ui circular icon button" style={link} href="https://github.com/psweeney101/SearchMe" target="_blank">
+              <i className="github icon" style={linkIcon}></i>
             </a>
-            <a class="ui circular icon button" style={link} href="https://www.buymeacoffee.com/psweeney101" target="_blank">
-              <i class="coffee icon" style={linkIcon}></i>
+            <a className="ui circular icon button" style={link} href="https://www.buymeacoffee.com/psweeney101" target="_blank">
+              <i className="coffee icon" style={linkIcon}></i>
             </a>
           </div>
           <div style={groupme}>Powered by GroupMe®</div>

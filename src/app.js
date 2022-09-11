@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import Cookies from "universal-cookie";
-import css from "./app.css";
+import "./app.css";
 import About from "./pages/about";
 import Directory from "./pages/directory";
 import DM from "./pages/dm";
@@ -11,11 +10,16 @@ import Login from "./pages/login";
 export default class App extends React.Component {
     constructor() {
         super();
-        this.cookies = new Cookies();
         this.state = {
-            access_token: this.cookies.get("SearchMe")
+            access_token: localStorage.getItem("access_token")
         }
         this.params = new URLSearchParams(window.location.search);
+
+        // Automatically redirect from Heroku to Vercel
+        if (location.href.includes("herokuapp.com")) {
+            alert("NOTICE: SearchMe is moving to https://searchme.vercel.app. Heroku is ending its free tier support on November 28, 2022. Starting then, this heroku.com URL will no longer be available. Redirecting now...")
+            location.href = "https://searchme.vercel.app";
+        }
     }
 
     about = () => {
@@ -25,11 +29,7 @@ export default class App extends React.Component {
     callback = () => {
         var access_token = this.params.get("access_token");
         if (access_token) {
-            this.cookies.set("SearchMe", this.params.get("access_token"), {
-                maxAge: 3600 * 24 * 30, // 1 Month
-                path: "/",
-                secure: process.env.NODE_ENV !== 'development',
-            });
+            localStorage.setItem("access_token", this.params.get("access_token"));
         }
         return <Redirect to="/" />;
     }
@@ -58,9 +58,9 @@ export default class App extends React.Component {
     login = () => {
         if (this.state.access_token) {
             return <Redirect to="/directory" />;
-        } else if (this.cookies.get("SearchMe")) {
+        } else if (localStorage.getItem("access_token")) {
             this.setState({
-                access_token: this.cookies.get("SearchMe")
+                access_token: localStorage.getItem("access_token")
             }, () => {
                 return <Redirect to="/directory" />;
             });
@@ -69,11 +69,7 @@ export default class App extends React.Component {
     }
 
     logout = () => {
-        this.cookies.remove("SearchMe", {
-            maxAge: 3600 * 24 * 30, // 1 Month
-            path: "/",
-            secure: process.env.NODE_ENV !== 'development',
-        });
+        localStorage.clear();
         this.setState({
             access_token: undefined
         });

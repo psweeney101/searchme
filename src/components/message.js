@@ -75,7 +75,7 @@ class Message extends React.Component {
                 <Modal basic size="small" open={this.state.open}>
                     <Modal.Content>
                         <center>
-                            <div class="image content">
+                            <div className="image content">
                                 <img src={this.state.url} style={{ maxWidth: "100%", maxHeight: "500px" }} alt="Attachment"></img>
                             </div>
                         </center>
