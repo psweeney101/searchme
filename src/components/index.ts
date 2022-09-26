@@ -1,3 +1,3 @@
-export * from './Filter';
+export * from './AdvancedSearch';
+export * from './Avatar';
 export * from './RouterScroll';
-export * from './Sort';

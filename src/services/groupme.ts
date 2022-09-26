@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { Chat, ChatPreview, ChatType } from 'src/interfaces';
+import { Chat, ChatPreview, ChatType, Message } from 'src/interfaces';
+import groupMeIcon from 'src/assets/groupme-icon.png';
 
 export class GroupMe {
   /** Base URL for all API requests */
@@ -26,7 +27,7 @@ export class GroupMe {
 
   /** Gets info about the current user */
   static async getUser(): Promise<Chat['members'][0]> {
-    const user = await this.fetch<{id: string; name: string; image_url: string }>('users/me');
+    const user = await this.fetch<{ id: string; name: string; image_url: string }>('users/me');
     return { id: user.id, name: user.name, image_url: user.image_url };
   }
 
@@ -49,7 +50,7 @@ export class GroupMe {
     return previews;
   }
 
-  /** Gets a Chat info */
+  /** Gets a Chat's info */
   static async getChat(type: ChatType, id: string): Promise<Chat> {
     if (type === ChatType.Group) {
       const group = await this.fetch<{ id: string; name: string; image_url: string; members: { user_id: string; nickname: string; image_url: string; }[]; messages: { count: number }; }>(
@@ -66,6 +67,37 @@ export class GroupMe {
       return { type, id, name: chat.other_user.name, image_url: chat.other_user.avatar_url, members: [{ id: String(chat.other_user.id), name: chat.other_user.name, image_url: chat.other_user.avatar_url }, await this.getUser()], num_messages: chat.messages_count };
     }
     throw new Error('Unrecognized chat type');
+  }
+
+  /** Gets a Chat's messages */
+  static async getMessages(type: ChatType, id: string, total: number, progress: (progress: number) => void): Promise<Message[]> {
+    const limit = type === ChatType.Group ? 100 : 20;
+    const chunks = new Array(Math.ceil(total / limit)).fill(id);
+
+    const messages: Message[] = [];
+    let before_id = '';
+
+    for await (const chunk of chunks) {
+      if (type === ChatType.Group) {
+        const result = await this.fetch<{ messages: { id: string; created_at: number; user_id: string; name: string; avatar_url: string; text: string; system: boolean; favorited_by: string[]; attachments: { type: string; url: string }[]; }[] }>(
+          `groups/${chunk}/messages?limit=${limit}&before_id=${before_id}`
+        );
+        messages.push(...result.messages.map(message => (
+          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: message.system ? groupMeIcon : message.avatar_url }, attachments: message.attachments, liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
+        )));
+      } else {
+        const result = await this.fetch<{ direct_messages: { id: string; created_at: number; user_id: string; name: string; avatar_url: string; text: string; favorited_by: string[]; attachments: { type: string; url: string }[]; }[] }>(
+          `direct_messages?other_user_id=${id}&before_id=${before_id}`
+        );
+        messages.push(...result.direct_messages.map(message => (
+          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: message.avatar_url }, attachments: message.attachments, liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
+        )));
+      }
+      before_id = messages[messages.length - 1].id;
+      progress(messages.length);
+    }
+
+    return messages;
   }
 
   /** Helper function for fetching a GroupMe API */

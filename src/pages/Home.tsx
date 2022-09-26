@@ -1,11 +1,10 @@
 import { Component, ReactNode } from 'react';
-import { Header, Image, Input, List, Segment } from 'semantic-ui-react';
+import { Header, Input, List, Segment } from 'semantic-ui-react';
 import Highlighter from 'react-highlight-words';
 import { ChatPreview, ChatType, Styles } from 'src/interfaces';
 import { compare, GroupMe, TimeAgo } from 'src/services';
-import groupNoAvatar from 'src/assets/group-no-avatar.png';
-import userNoAvatar from 'src/assets/user-no-avatar.png';
 import { Link } from 'react-router-dom';
+import { Avatar } from 'src/components';
 
 type Props = {};
 type State = { search: string; chats: ChatPreview[] | null };
@@ -27,15 +26,12 @@ export class Home extends Component<Props, State> {
 
     return (
       <div>
-        <div style={styles.header}>
-          <Header as="h2">
-            Groups
-            <Header.Subheader>Pick a group you would like to search.</Header.Subheader>
-          </Header>
-          <div>
-            <Input icon='users' placeholder="Search groups..." onChange={event => this.setState({ search: event.target.value })} />
-          </div>
-        </div>
+        <Header as="h2">
+          Groups
+          <Header.Subheader>Pick a group you would like to search.</Header.Subheader>
+        </Header>
+
+        <Input icon='users' placeholder="Search for a group..." onChange={event => this.setState({ search: event.target.value })} style={styles.search} />
 
         <Segment>
 
@@ -45,10 +41,12 @@ export class Home extends Component<Props, State> {
                 (items?.length === 0) ? `No results for "${this.state.search}"` : ''
           }
 
-          <List divided animated selection link verticalAlign="middle">
+          <List divided selection link verticalAlign="middle">
             {items?.map(group => (
               <List.Item key={group.id} as={Link} to={`/${group.type}/${group.id}`}>
-                <Image avatar={group.type === ChatType.DM} src={group.image_url || (group.type === ChatType.Group ? groupNoAvatar : userNoAvatar)} size="mini" style={styles.avatar} alt="Avatar" />
+                <List.Icon>
+                  <Avatar type={group.type === ChatType.Group ? 'group' : 'user'} src={group.image_url} alt={group.name} size="50px" />
+                </List.Icon>
                 <List.Content>
                   <List.Header>
                     <Highlighter searchWords={this.state.search.split(/\s+/)} textToHighlight={group.name} autoEscape activeIndex={-1}>
@@ -67,10 +65,7 @@ export class Home extends Component<Props, State> {
 }
 
 const styles: Styles = {
-  header: {
-    display: 'inline-flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  search: {
     width: '100%',
   },
   avatar: {

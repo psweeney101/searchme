@@ -1,6 +1,6 @@
 import { Component, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Header, Icon, Image, Item } from 'semantic-ui-react';
+import { Button, Header, Image, Item } from 'semantic-ui-react';
 import { GroupMe } from 'src/services';
 import { Styles } from 'src/interfaces';
 import logo from 'src/assets/searchme-logo.png';
@@ -16,12 +16,10 @@ export class About extends Component<Props, State> {
           <Image src={logo} centered size="medium" alt="SearchMe logo" />
         </div>
 
-        <Button as={Link} to="/" circular>
-          <Icon name="chevron left" />
-          Home
-        </Button>
-
-        <Header as="h1" textAlign="center">About</Header>
+        <div style={styles.header}>
+          <Button as={Link} to="/" circular icon="left chevron" style={styles.back} />
+          <Header as="h1" textAlign="center" style={styles.title}>About</Header>
+        </div>
 
         <Item.Group>
           <Item>
@@ -82,7 +80,7 @@ export class About extends Component<Props, State> {
                 &nbsp;<a href="https://semantic-ui.com" target="_blank" rel="noreferrer">Semantic UI</a>,
                 &nbsp;<a href="https://www.npmjs.com/package/axios" target="_blank" rel="noreferrer">Axios</a>,
                 &nbsp;<a href="https://www.npmjs.com/package/javascript-time-ago" target="_blank" rel="noreferrer">Javascript-Time-Ago</a>,
-                &nbsp;<a href="https://momentjs.com" target="_blank" rel="noreferrer">Moment.js</a>,
+                &nbsp;<a href="https://reactdatepicker.com" target="_blank" rel="noreferrer">React-Datepicker</a>,
                 &nbsp;<a href="https://github.com/bvaughn/react-highlight-words" target="_blank" rel="noreferrer">React-Highlight-Words</a>.
                 &nbsp;SearchMe has no database - all of your messages are loaded directly from <a href="https://dev.groupme.com/docs/v3" target="_blank" rel="noreferrer">GroupMe.com</a> into your browser.
                 You can check out my <a href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer">GitHub repository</a> to see how it's done.
@@ -106,6 +104,17 @@ const styles: Styles = {
     width: '90%',
     maxWidth: '700px',
     margin: 'auto',
+  },
+  header: {
+    display: 'flex',
+    paddingTop: '16px',
+  },
+  back: {
+    margin: 0,
+  },
+  title: {
+    margin: 'auto',
+    paddingRight: '36px',
   },
   footer: {
     display: 'flex',

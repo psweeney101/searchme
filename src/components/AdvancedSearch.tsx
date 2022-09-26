@@ -1,5 +1,7 @@
 import { FC, ReactElement, useState } from 'react';
-import { Accordion, Button, Dropdown, Form, Icon, Input } from 'semantic-ui-react';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import { Accordion, Button, Dropdown, Form, Icon } from 'semantic-ui-react';
 import { Chat } from 'src/interfaces';
 
 type Props = {
@@ -9,34 +11,37 @@ type Props = {
   sentBy: string;
   likedBy: string;
   attachments: string;
-  setSearchParam: (name: string, value?: string | string[]) => void;
+  setSearchParam: (name: string, value?: string | string[] | number) => void;
   reset: () => void;
 };
 
-export const Filter: FC<Props> = (props: Props): ReactElement => {
+export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
   const [active, setActive] = useState(false);
 
   const sentBy = props.sentBy.split(',') || [];
   const likedBy = props.likedBy.split(',') || [];
   const attachments = props.attachments.split(',') || [];
 
+  const startDate = props.startDate ? new Date(props.startDate) : null;
+  const endDate = props.endDate ? new Date(props.endDate) : null;
+
   return (
     <>
       <Accordion.Title active={active} onClick={() => setActive(!active)}>
-        <Icon name="filter" />
-        Filter
+        <Icon name="dropdown" />
+        Advanced Search
       </Accordion.Title>
 
       <Accordion.Content active={active}>
         <Form>
           <Form.Field>
             <label>Start Date</label>
-            <Input type="date" value={props.startDate} onChange={event => props.setSearchParam('startDate', event.target.value)} />
+            <DatePicker placeholderText="mm/dd/yyyy" selected={startDate} maxDate={endDate} onChange={date => props.setSearchParam('startDate', date?.toLocaleDateString())} />
           </Form.Field>
 
           <Form.Field>
             <label>End Date</label>
-            <Input type="date" value={props.endDate} onChange={event => props.setSearchParam('endDate', event.target.value)} />
+            <DatePicker placeholderText="mm/dd/yyyy" selected={endDate} minDate={startDate} onChange={date => props.setSearchParam('endDate', date?.toLocaleDateString())} />
           </Form.Field>
 
           <Form.Field>
