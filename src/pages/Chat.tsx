@@ -3,11 +3,11 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { Accordion, Button, Divider, Dropdown, Feed, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
 import { GMChatType, GMChat, GMMessage, MessageSort, Styles } from 'src/interfaces';
 import { GroupMe } from 'src/services';
-import { AdvancedSearch, Avatar, Message } from 'src/components';
+import { AdvancedSearch, Avatar, Message, Paginator } from 'src/components';
 
 type Props = { type: GMChatType };
 
-const MESSAGES_PER_PAGE = 250;
+const MESSAGES_PER_PAGE = 100;
 
 export const Chat: FC<Props> = (props: Props): ReactElement => {
   const { id } = useParams();
@@ -38,7 +38,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const [chat, setChat] = useState<GMChat>();
   const [messages, setMessages] = useState<GMMessage[]>();
   const [filtered, setFiltered] = useState<GMMessage[]>();
-  const [numDisplayed, setNumDisplayed] = useState(0);
+  const [startIndex, setStartIndex] = useState<number>(0);
   // Search parameters
   const query = searchParams.get('query') || '';
   const startDate = searchParams.get('startDate') || '';
@@ -48,6 +48,8 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const attachments = searchParams.get('attachments') || '';
   // Sort parameter
   const sort = searchParams.get('sort') as MessageSort || MessageSort.MostRecent;
+  // Page parameter
+  const page = Number(searchParams.get('page')) || 1;
 
   // Re-fetch chat when id/type changes
   useEffect(() => {
@@ -84,13 +86,25 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
     }
   }, [sort, filtered]);
 
-  // Reset numDisplayed when messages are re-filtered
+  // Reset range when page changes or messages are re-filtered
   useEffect(() => {
-    if (filtered) {
-      console.log('Paginate!');
-      setNumDisplayed(MESSAGES_PER_PAGE);
+    if (!filtered) return;
+    console.log('Set range!', page);
+    // Ensure page is valid
+    const maxPage = Math.ceil(filtered.length / MESSAGES_PER_PAGE);
+    if (page < 1) {
+      return setSearchParams(params => { params.delete('page'); return params; });
+    } else if (page > maxPage) {
+      return setSearchParams(params => { params.set('page', String(maxPage)); return params; });
     }
-  }, [filtered]);
+    // Remove page=1 param, but continue
+    if (page === 1) {
+      setSearchParams(params => { params.delete('page'); return params; });
+    }
+    // Set start index
+    const start = (page - 1) * MESSAGES_PER_PAGE;
+    setStartIndex(start);
+  }, [page, filtered, setSearchParams]);
 
   return (
     <div>
@@ -139,13 +153,15 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
               }} />
             </Accordion>
 
+            <Paginator startIndex={startIndex} messagesPerPage={MESSAGES_PER_PAGE} total={filtered.length} page={page} setSearchParam={setSearchParam} />
             <Feed>
-              {filtered.slice(0, numDisplayed).map(message => <Message key={message.id} chat={chat} message={message} />)}
+              {filtered.slice(startIndex, startIndex + MESSAGES_PER_PAGE).map(message => <Message key={message.id} chat={chat} message={message} />)}
             </Feed>
+            <Paginator startIndex={startIndex} messagesPerPage={MESSAGES_PER_PAGE} total={filtered.length} page={page} setSearchParam={setSearchParam}  />
           </>
         )
         : (
-          <Progress value={progress} total={chat?.num_messages} progress="value" label={`Loading all ${chat?.num_messages.toLocaleString()} messages...`} />
+          <Progress value={progress} total={chat?.num_messages} progress="percent" precision={0} label={`Loading all ${chat?.num_messages.toLocaleString()} messages...`} />
         )}
 
     </div>

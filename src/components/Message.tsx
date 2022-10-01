@@ -12,7 +12,7 @@ type Props = {
 export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
   /** Maps a favoriter to the user */
   const getUser = (id: string) => {
-    const user = chat?.members.find(m => m.id === id);
+    const user = chat.members.find(m => m.id === id);
     if (!user) return undefined;
     return (
       <Popup key={id} hoverable on={['focus', 'hover']} trigger={<span><Avatar type="user" src={user.image_url} alt={user.name} size="25px" /></span>}>
@@ -22,7 +22,7 @@ export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
   }
 
   return (
-    <Feed.Event key={message.id}>
+    <Feed.Event>
       <Feed.Label>
         <Avatar type={message.user.id === 'system' ? 'group' : 'user'} src={message.user.image_url} alt={message.user.name} />
       </Feed.Label>
