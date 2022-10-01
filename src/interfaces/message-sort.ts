@@ -1,4 +1,4 @@
-export enum Sort {
+export enum MessageSort {
   MostRecent = 'Most Recent',
   LeastRecent = 'Least Recent',
   NameAZ = 'Name A-Z',

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Chat, ChatPreview, ChatType, Message } from 'src/interfaces';
+import { GMChat, GMChatPreview, GMChatType, GMMessage } from 'src/interfaces';
 import groupMeIcon from 'src/assets/groupme-icon.png';
 
 export class GroupMe {
@@ -26,13 +26,13 @@ export class GroupMe {
   }
 
   /** Gets info about the current user */
-  static async getUser(): Promise<Chat['members'][0]> {
+  static async getUser(): Promise<GMChat['members'][0]> {
     const user = await this.fetch<{ id: string; name: string; image_url: string }>('users/me');
     return { id: user.id, name: user.name, image_url: user.image_url };
   }
 
   /** Lists all Groups and DMs the user has access to */
-  static async listChats(): Promise<ChatPreview[]> {
+  static async listChats(): Promise<GMChatPreview[]> {
     const groups = await this.fetch<{ id: string; name: string; image_url: string; messages: { last_message_created_at: number }; created_at: number; }[]>(
       `groups?per_page=500&omit=memberships`
     );
@@ -41,24 +41,24 @@ export class GroupMe {
       `chats?per_page=100`
     );
 
-    const previews: ChatPreview[] = groups.map(group => (
-      { type: ChatType.Group, id: group.id, name: group.name, image_url: group.image_url, updated_at: new Date((group.messages.last_message_created_at || group.created_at) * 1000) }
+    const previews: GMChatPreview[] = groups.map(group => (
+      { type: GMChatType.Group, id: group.id, name: group.name, image_url: group.image_url, updated_at: new Date((group.messages.last_message_created_at || group.created_at) * 1000) }
     )).concat(chats.map(chat => (
-      { type: ChatType.DM, id: String(chat.other_user.id), name: chat.other_user.name, image_url: chat.other_user.avatar_url, updated_at: new Date((chat.last_message.created_at || chat.created_at) * 1000) }
+      { type: GMChatType.DM, id: String(chat.other_user.id), name: chat.other_user.name, image_url: chat.other_user.avatar_url, updated_at: new Date((chat.last_message.created_at || chat.created_at) * 1000) }
     ))).sort((a, b) => +b.updated_at - +a.updated_at);
 
     return previews;
   }
 
   /** Gets a Chat's info */
-  static async getChat(type: ChatType, id: string): Promise<Chat> {
-    if (type === ChatType.Group) {
+  static async getChat(type: GMChatType, id: string): Promise<GMChat> {
+    if (type === GMChatType.Group) {
       const group = await this.fetch<{ id: string; name: string; image_url: string; members: { user_id: string; nickname: string; image_url: string; }[]; messages: { count: number }; }>(
         `groups/${id}`
       );
       return { type, id, name: group.name, image_url: group.image_url, members: group.members.map(member => ({ id: member.user_id, name: member.nickname, image_url: member.image_url })).sort((a, b) => a.name?.localeCompare(b.name)), num_messages: group.messages.count };
     }
-    if (type === ChatType.DM) {
+    if (type === GMChatType.DM) {
       const chats = await this.fetch<{ other_user: { id: number; name: string; avatar_url: string; }; messages_count: number }[]>(
         `chats?&per_page=100`
       );
@@ -70,15 +70,15 @@ export class GroupMe {
   }
 
   /** Gets a Chat's messages */
-  static async getMessages(type: ChatType, id: string, total: number, progress: (progress: number) => void): Promise<Message[]> {
-    const limit = type === ChatType.Group ? 100 : 20;
+  static async getMessages(type: GMChatType, id: string, total: number, progress: (progress: number) => void): Promise<GMMessage[]> {
+    const limit = type === GMChatType.Group ? 100 : 20;
     const chunks = new Array(Math.ceil(total / limit)).fill(id);
 
-    const messages: Message[] = [];
+    const messages: GMMessage[] = [];
     let before_id = '';
 
     for await (const chunk of chunks) {
-      if (type === ChatType.Group) {
+      if (type === GMChatType.Group) {
         const result = await this.fetch<{ messages: { id: string; created_at: number; user_id: string; name: string; avatar_url: string; text: string; system: boolean; favorited_by: string[]; attachments: { type: string; url: string }[]; }[] }>(
           `groups/${chunk}/messages?limit=${limit}&before_id=${before_id}`
         );

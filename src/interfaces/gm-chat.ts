@@ -1,7 +1,7 @@
-import { ChatType } from './chat-type';
+import { GMChatType } from './gm-chat-type';
 
-export type Chat = {
-  type: ChatType;
+export type GMChat = {
+  type: GMChatType;
   id: string;
   name: string;
   image_url: string;

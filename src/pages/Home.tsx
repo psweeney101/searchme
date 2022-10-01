@@ -1,13 +1,13 @@
 import { Component, ReactNode } from 'react';
 import { Header, Input, List, Segment } from 'semantic-ui-react';
 import Highlighter from 'react-highlight-words';
-import { ChatPreview, ChatType, Styles } from 'src/interfaces';
+import { GMChatPreview, GMChatType, Styles } from 'src/interfaces';
 import { compare, GroupMe, TimeAgo } from 'src/services';
 import { Link } from 'react-router-dom';
 import { Avatar } from 'src/components';
 
 type Props = {};
-type State = { search: string; chats: ChatPreview[] | null };
+type State = { search: string; chats: GMChatPreview[] | null };
 
 export class Home extends Component<Props, State> {
 
@@ -45,7 +45,7 @@ export class Home extends Component<Props, State> {
             {items?.map(group => (
               <List.Item key={group.id} as={Link} to={`/${group.type}/${group.id}`}>
                 <List.Icon>
-                  <Avatar type={group.type === ChatType.Group ? 'group' : 'user'} src={group.image_url} alt={group.name} size="50px" />
+                  <Avatar type={group.type === GMChatType.Group ? 'group' : 'user'} src={group.image_url} alt={group.name} size="50px" />
                 </List.Icon>
                 <List.Content>
                   <List.Header>

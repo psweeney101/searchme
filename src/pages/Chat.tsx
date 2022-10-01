@@ -1,12 +1,11 @@
 import { FC, ReactElement, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { Accordion, Button, Divider, Dropdown, Feed, Header, Icon, Input, Message as Warning, Popup, Progress } from 'semantic-ui-react';
-import { format } from 'date-fns';
-import { Chat as GroupMeChat, ChatType, Message, Sort as MessageSort, Styles } from 'src/interfaces';
+import { Accordion, Button, Divider, Dropdown, Feed, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
+import { GMChatType, GMChat, GMMessage, MessageSort, Styles } from 'src/interfaces';
 import { GroupMe } from 'src/services';
-import { AdvancedSearch, Avatar } from 'src/components';
+import { AdvancedSearch, Avatar, Message } from 'src/components';
 
-type Props = { type: ChatType };
+type Props = { type: GMChatType };
 
 const MESSAGES_PER_PAGE = 250;
 
@@ -36,9 +35,9 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const [warning, setWarning] = useState(true);
 
   // Chat & Message States
-  const [chat, setChat] = useState<GroupMeChat>();
-  const [messages, setMessages] = useState<Message[]>();
-  const [filtered, setFiltered] = useState<Message[]>();
+  const [chat, setChat] = useState<GMChat>();
+  const [messages, setMessages] = useState<GMMessage[]>();
+  const [filtered, setFiltered] = useState<GMMessage[]>();
   const [numDisplayed, setNumDisplayed] = useState(0);
   // Search parameters
   const query = searchParams.get('query') || '';
@@ -93,17 +92,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
     }
   }, [filtered]);
 
-  /** Maps a favoriter to the user */
-  const getUser = (id: string) => {
-    const user = chat?.members.find(m => m.id === id);
-    if (!user) return undefined;
-    return (
-      <Popup key={id} hoverable trigger={<span><Avatar type="user" src={user.image_url} alt={user.name} size="25px" /></span>}>
-        <Popup.Content>{user.name}</Popup.Content>
-      </Popup>
-    );
-  }
-
   return (
     <div>
 
@@ -117,7 +105,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
         </Header>
 
         <div style={{ flex: 1 }}>
-          <Avatar type={props.type === ChatType.Group ? 'group' : 'user'} src={chat?.image_url} alt={chat?.name} size="16vw" />
+          <Avatar type={props.type === GMChatType.Group ? 'group' : 'user'} src={chat?.image_url} alt={chat?.name} size="16vw" />
         </div>
       </div>
 
@@ -128,7 +116,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
 
       <Divider />
 
-      {filtered
+      {chat && filtered
         ? (
           <>
             <div style={styles.search}>
@@ -152,32 +140,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
             </Accordion>
 
             <Feed>
-              {filtered.slice(0, numDisplayed).map(message => (
-                <Feed.Event key={message.id}>
-                  <Feed.Label>
-                    <Avatar type={message.user.id === 'system' ? 'group' : 'user'} src={message.user.image_url} alt={message.user.name} />
-                  </Feed.Label>
-                  <Feed.Content style={styles.content}>
-                    <Feed.Summary>
-                      <Feed.User as="span">{message.user.name}</Feed.User>
-                      <Feed.Date>{format(message.created_at, 'MMM dd yyyy p')}</Feed.Date>
-                    </Feed.Summary>
-                    <Feed.Extra text>{message.text}</Feed.Extra>
-                    <Feed.Extra images>{message.attachments.map((attachment, index) => {
-                      if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} />
-                      if (attachment.type === 'video') return <video key={index} src={`${attachment.url}#t=0.1`} controls preload="metadata" style={styles.video} />
-                      return null;
-                    })}</Feed.Extra>
-                    <Feed.Meta>
-                      <Popup hoverable disabled={!message.liked_by.length} trigger={(<span><Icon name="like" />{message.liked_by.length}</span>)}>
-                        <Popup.Content style={styles.likers}>
-                          {message.liked_by.map(getUser)}
-                        </Popup.Content>
-                      </Popup>
-                    </Feed.Meta>
-                  </Feed.Content>
-                </Feed.Event>
-              ))}
+              {filtered.slice(0, numDisplayed).map(message => <Message key={message.id} chat={chat} message={message} />)}
             </Feed>
           </>
         )
@@ -212,16 +175,4 @@ const styles: Styles = {
   progress: {
     margin: 0,
   },
-  content: {
-    overflow: 'hidden',
-  },
-  video: {
-    maxWidth: '100%',
-    maxHeight: '250px',
-  },
-  likers: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '7px',
-  }
 }

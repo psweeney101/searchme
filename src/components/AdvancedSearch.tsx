@@ -2,10 +2,10 @@ import { FC, ReactElement, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { Accordion, Button, Dropdown, Form, Icon } from 'semantic-ui-react';
-import { Chat } from 'src/interfaces';
+import { GMChat } from 'src/interfaces';
 
 type Props = {
-  chat?: Chat;
+  chat?: GMChat;
   startDate: string;
   endDate: string;
   sentBy: string;
