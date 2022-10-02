@@ -80,7 +80,7 @@ const styles: Styles = {
     margin: 'auto',
   },
   modalImage: {
-    maxHeight: 'calc(100vh - 6em - 36px)',
+    maxHeight: 'calc(80vh - 36px)',
     maxWidth: '100%',
     objectFit: 'contain',
     margin: 'auto',
