@@ -172,12 +172,23 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
               if (el) {
                 el.scrollIntoView({ behavior: 'smooth' });
               }
-            }, 100);
+            }, 500);
           }
         }
-      }, 100)
+      }, 500)
     }
   }, [hash, setSearchParam, messages]);
+
+  /** Downloads messages to a JSON file */
+  const download = useCallback((messages: GMMessage[]) => {
+    if (!chat) return;
+    const data = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify({ ...chat, messages }))}`;
+    const el = document.createElement('a');
+    el.setAttribute('href', data);
+    el.setAttribute('download', `SearchMe - ${chat.name}.json`)
+    el.click();
+    el.remove();
+  }, [chat]);
 
   return (
     <div>
@@ -203,7 +214,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
 
       <Divider />
 
-      {chat && paginated && sorted
+      {chat && messages && filtered && sorted && paginated && sorted
         ? (
           <>
             <div style={styles.search}>
@@ -217,13 +228,22 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
             </Accordion>
 
             {paginated.length ? (
-              <>
+              <div style={styles.body}>
                 <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
                 <Feed>
                   {paginated.map(message => <Message key={message.id} chat={chat} message={message} query={query} />)}
                 </Feed>
                 <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
-              </>
+
+                <Dropdown button labeled className="icon secondary" icon="download" text="Download">
+                  <Dropdown.Menu>
+                    <Dropdown.Header content="Download Messages" />
+                    <Dropdown.Divider />
+                    <Dropdown.Item icon="list" content={`All Messages (${messages.length.toLocaleString()})`} onClick={() => download(messages)} />
+                    <Dropdown.Item icon="filter" content={`Filtered Messages (${filtered.length.toLocaleString()})`} onClick={() => download(sorted)} />
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
             ) : <div style={styles.empty}>No Results</div>
             }
 
@@ -259,6 +279,9 @@ const styles: Styles = {
   },
   progress: {
     margin: 0,
+  },
+  body: {
+    textAlign: 'center',
   },
   empty: {
     textAlign: 'center',
