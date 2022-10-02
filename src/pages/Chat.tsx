@@ -1,6 +1,7 @@
-import { FC, ReactElement, useEffect, useState } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { FC, ReactElement, useCallback, useEffect, useState } from 'react';
+import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { Accordion, Button, Divider, Dropdown, Feed, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
+import { compareAsc, compareDesc } from 'date-fns';
 import { GMChatType, GMChat, GMMessage, MessageSort, Styles } from 'src/interfaces';
 import { GroupMe } from 'src/services';
 import { AdvancedSearch, Avatar, Message, Paginator } from 'src/components';
@@ -13,8 +14,8 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  /** Updates a search parameter */
-  const setSearchParam = (name: string, value?: string | string[] | number): void => {
+  /** Helper for updating a search parameter */
+  const setSearchParam = useCallback((name: string, value?: string | string[] | number): void => {
     setSearchParams(params => {
       let string;
       if (Array.isArray(value)) {
@@ -28,8 +29,8 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
       if (string) params.set(name, string);
       else params.delete(name);
       return params;
-    });
-  }
+    }); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [progress, setProgress] = useState(0);
   const [warning, setWarning] = useState(true);
@@ -38,7 +39,8 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const [chat, setChat] = useState<GMChat>();
   const [messages, setMessages] = useState<GMMessage[]>();
   const [filtered, setFiltered] = useState<GMMessage[]>();
-  const [startIndex, setStartIndex] = useState<number>(0);
+  const [sorted, setSorted] = useState<GMMessage[]>();
+  const [paginated, setPaginated] = useState<GMMessage[]>();
   // Search parameters
   const query = searchParams.get('query') || '';
   const startDate = searchParams.get('startDate') || '';
@@ -46,65 +48,97 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   const sentBy = searchParams.get('sentBy') || '';
   const likedBy = searchParams.get('likedBy') || '';
   const attachments = searchParams.get('attachments') || '';
+  // Hash
+  const { hash } = useLocation();
   // Sort parameter
   const sort = searchParams.get('sort') as MessageSort || MessageSort.MostRecent;
   // Page parameter
   const page = Number(searchParams.get('page')) || 1;
 
-  // Re-fetch chat when id/type changes
+  // Re-fetch chat after type/id are set
   useEffect(() => {
-    console.log('Set chat!', props.type, id);
-    if (!id) throw new Error('Chat ID not found.');
-    GroupMe.getChat(props.type, id)
-      .then(setChat)
-      .catch(() => window.location.href = '/');
+    if (id) {
+      console.log('Get chat!', props.type, id);
+      GroupMe.getChat(props.type, id)
+        .then(setChat)
+        .catch(() => window.location.href = '/');
+    }
   }, [props.type, id]);
 
-  // Re-fetch messages when group changes
+  // Re-fetch messages after chat is set
   useEffect(() => {
     if (chat) {
-      console.log('Set messages!', chat);
+      console.log('Get messages!', chat);
       GroupMe.getMessages(chat.type, chat.id, chat.num_messages, setProgress)
         .then(setMessages);
     }
   }, [chat]);
 
-  // Re-filter messages when messages are loaded and when filter params changes
+  // Re-filter after messages are loaded or filter params change
   useEffect(() => {
     if (messages) {
-      console.log('Set filtered!', messages, query, startDate, endDate, sentBy, likedBy, attachments);
+      console.log('Filter!', messages, query, startDate, endDate, sentBy, likedBy, attachments);
       setFiltered([...messages]);
     }
   }, [messages, query, startDate, endDate, sentBy, likedBy, attachments]);
 
-  // Re-sort messages when messages are re-filtered or the sort option is changed
+  // Re-sort after filter or sort changes
   useEffect(() => {
     if (filtered) {
       console.log('Sort!', filtered, sort);
-      filtered.sort();
-      setFiltered(filtered);
-    }
-  }, [sort, filtered]);
+      const defaultSort: (a: GMMessage, b: GMMessage) => number = (a, b) => compareDesc(a.created_at, b.created_at);
+      let sortFn = defaultSort;
+      if (sort === MessageSort.LeastRecent) {
+        sortFn = (a, b) => compareAsc(a.created_at, b.created_at);
+      } else if (sort === MessageSort.NameAZ) {
+        sortFn = (a, b) => a.user.name.localeCompare(b.user.name);
+      } else if (sort === MessageSort.NameZA) {
+        sortFn = (a, b) => b.user.name.localeCompare(a.user.name);
+      } else if (sort === MessageSort.MostLiked) {
+        sortFn = (a, b) => b.liked_by.length - a.liked_by.length;
+      } else if (sort === MessageSort.LeastLiked) {
+        sortFn = (a, b) => a.liked_by.length - b.liked_by.length;
+      }
 
-  // Reset range when page changes or messages are re-filtered
+      setSorted([...filtered].sort((a, b) => {
+        const num = sortFn(a, b);
+        return num === 0 ? defaultSort(a, b) : num;
+      }));
+    }
+  }, [filtered, sort]);
+
+  // Re-page after sorting or page changes
   useEffect(() => {
-    if (!filtered) return;
-    console.log('Set range!', page);
-    // Ensure page is valid
-    const maxPage = Math.ceil(filtered.length / MESSAGES_PER_PAGE);
-    if (page < 1) {
-      return setSearchParams(params => { params.delete('page'); return params; });
-    } else if (page > maxPage) {
-      return setSearchParams(params => { params.set('page', String(maxPage)); return params; });
+    if (sorted) {
+      console.log('Page!', sorted, page);
+      // Ensure page is valid
+      const maxPage = Math.ceil(sorted.length / MESSAGES_PER_PAGE);
+      if (page < 1) {
+        return setSearchParam('page');
+      } else if (page > maxPage) {
+        return setSearchParam('page', maxPage);
+      }
+
+      const start = (page - 1) * MESSAGES_PER_PAGE;
+      setPaginated(sorted.slice(start, start + MESSAGES_PER_PAGE));
     }
-    // Remove page=1 param, but continue
-    if (page === 1) {
-      setSearchParams(params => { params.delete('page'); return params; });
+  }, [sorted, page, setSearchParam]);
+
+  // Re-filter/sort/page and scroll to message when hash changes
+  useEffect(() => {
+    if (hash) {
+      setSearchParams(params => {
+        params.delete('query');
+        params.delete('startDate');
+        params.delete('endDate');
+        params.delete('sentBy');
+        params.delete('likedBy');
+        params.delete('attachments');
+        params.delete('page');
+        return params;
+      });
     }
-    // Set start index
-    const start = (page - 1) * MESSAGES_PER_PAGE;
-    setStartIndex(start);
-  }, [page, filtered, setSearchParams]);
+  }, [hash, setSearchParams]);
 
   return (
     <div>
@@ -130,13 +164,13 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
 
       <Divider />
 
-      {chat && filtered
+      {chat && paginated && sorted
         ? (
           <>
             <div style={styles.search}>
               <Input fluid icon='search' placeholder="Search..." value={query} onChange={event => setSearchParam('query', event.target.value)} style={{ flex: 2 }} />
 
-              <Dropdown fluid selection value={sort} options={Object.values(MessageSort).map(option => ({ text: option, value: option }))} onChange={(_, data) => setSearchParam('sort', data.value === MessageSort.MostRecent ? undefined : data.value as string)} style={{ flex: 1 }} />
+              <Dropdown fluid selection value={sort} options={Object.values(MessageSort).map(option => ({ text: option, value: option }))} onChange={(_, { value }) => setSearchParam('sort', value === MessageSort.MostRecent ? undefined : value as MessageSort)} style={{ flex: 1 }} />
             </div>
 
             <Accordion fluid styled>
@@ -149,15 +183,15 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
                   params.delete('likedBy');
                   params.delete('attachments');
                   return params;
-                })
+                });
               }} />
             </Accordion>
 
-            <Paginator startIndex={startIndex} messagesPerPage={MESSAGES_PER_PAGE} total={filtered.length} page={page} setSearchParam={setSearchParam} />
+            <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
             <Feed>
-              {filtered.slice(startIndex, startIndex + MESSAGES_PER_PAGE).map(message => <Message key={message.id} chat={chat} message={message} />)}
+              {paginated.map(message => <Message key={message.id} chat={chat} message={message} />)}
             </Feed>
-            <Paginator startIndex={startIndex} messagesPerPage={MESSAGES_PER_PAGE} total={filtered.length} page={page} setSearchParam={setSearchParam}  />
+            <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam}/>
           </>
         )
         : (

@@ -3,15 +3,15 @@ import { Button, Header } from 'semantic-ui-react';
 import { Styles } from 'src/interfaces';
 
 type Props = {
-  startIndex: number;
-  messagesPerPage: number;
-  total: number;
   page: number;
+  displayed: number;
+  total: number;
+  messagesPerPage: number;
   setSearchParam: (name: string, value?: string | string[] | number) => void;
 };
 
 export const Paginator: FC<Props> = (props: Props): ReactElement => {
-  const start = Math.min(props.startIndex + 1, props.total);
+  const start = Math.min((props.page - 1) * props.messagesPerPage + 1, props.total);
   const end = Math.min(start + props.messagesPerPage - 1, props.total);
 
   const maxPage = Math.ceil(props.total / props.messagesPerPage);

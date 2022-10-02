@@ -29,12 +29,12 @@ export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
       <Feed.Content style={styles.content}>
         <Feed.Summary>
           <Feed.User as="span">{message.user.name}</Feed.User>
-          <Feed.Date>{format(message.created_at, 'MMM dd yyyy p')}</Feed.Date>
+          <Feed.Date as="a" onClick={() => document.location.hash = message.id}>{format(message.created_at, 'MMM dd yyyy p')}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text>{message.text}</Feed.Extra>
         <Feed.Extra images>{message.attachments.map((attachment, index) => {
-          if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} />
-          if (attachment.type === 'video') return <video key={index} src={`${attachment.url}#t=0.1`} controls preload="metadata" style={styles.video} />
+          if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} height="150px" style={{ width: 'auto' }} />
+          if (attachment.type === 'video') return <video key={index} src={`${attachment.url}#t=0.1`} controls preload="metadata" height="150px" />
           return null;
         })}
         </Feed.Extra>
@@ -53,10 +53,6 @@ export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
 const styles: Styles = {
   content: {
     overflow: 'hidden',
-  },
-  video: {
-    maxWidth: '100%',
-    maxHeight: '250px',
   },
   likers: {
     display: 'flex',
