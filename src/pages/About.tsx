@@ -81,7 +81,7 @@ export class About extends Component<Props, State> {
                 &nbsp;<a href="https://www.npmjs.com/package/axios" target="_blank" rel="noreferrer">Axios</a>,
                 &nbsp;<a href="https://www.npmjs.com/package/javascript-time-ago" target="_blank" rel="noreferrer">Javascript-Time-Ago</a>,
                 &nbsp;<a href="https://reactdatepicker.com" target="_blank" rel="noreferrer">React-Datepicker</a>,
-                &nbsp;<a href="https://github.com/bvaughn/react-highlight-words" target="_blank" rel="noreferrer">React-Highlight-Words</a>.
+                &nbsp;and <a href="https://github.com/iansinnott/react-string-replace" target="_blank" rel="noreferrer">React-String-Replace</a>.
                 &nbsp;SearchMe has no database - all of your messages are loaded directly from <a href="https://dev.groupme.com/docs/v3" target="_blank" rel="noreferrer">GroupMe.com</a> into your browser.
                 You can check out my <a href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer">GitHub repository</a> to see how it's done.
               </Item.Description>

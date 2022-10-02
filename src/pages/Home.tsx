@@ -1,10 +1,9 @@
 import { Component, ReactNode } from 'react';
 import { Header, Input, List, Segment } from 'semantic-ui-react';
-import Highlighter from 'react-highlight-words';
 import { GMChatPreview, GMChatType, Styles } from 'src/interfaces';
 import { compare, GroupMe, TimeAgo } from 'src/services';
 import { Link } from 'react-router-dom';
-import { Avatar } from 'src/components';
+import { Avatar, Highlight } from 'src/components';
 
 type Props = {};
 type State = { search: string; chats: GMChatPreview[] | null };
@@ -49,9 +48,7 @@ export class Home extends Component<Props, State> {
                 </List.Icon>
                 <List.Content>
                   <List.Header>
-                    <Highlighter searchWords={this.state.search.split(/\s+/)} textToHighlight={group.name} autoEscape activeIndex={-1}>
-                      {group.name}
-                    </Highlighter>
+                    <Highlight text={group.name} query={this.state.search} />
                   </List.Header>
                   <List.Description>Last updated {TimeAgo(group.updated_at)}</List.Description>
                 </List.Content>

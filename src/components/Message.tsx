@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { FC, ReactElement, useState } from 'react';
-import Highlighter from 'react-highlight-words';
 import { Button, Feed, Icon, Modal, Popup } from 'semantic-ui-react';
 import { GMChat, GMMessage, Styles } from 'src/interfaces';
 import { Avatar } from './Avatar';
+import { Highlight } from './Highlight';
 
 type Props = {
   chat: GMChat;
@@ -36,9 +36,7 @@ export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElemen
           <Feed.Date as="a" onClick={() => document.location.hash = message.id}>{format(message.created_at, 'MMM dd yyyy p')}</Feed.Date>
         </Feed.Summary>
         <Feed.Extra text style={styles.text}>
-          <Highlighter searchWords={query.split(/\s+/)} textToHighlight={message.text} autoEscape activeIndex={-1}>
-            {message.text}
-          </Highlighter>
+          <Highlight query={query} text={message.text} />
         </Feed.Extra>
         <Feed.Extra images>{message.attachments.map((attachment, index) => {
           if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} height="150px" style={{ width: 'auto', cursor: 'pointer' }} onClick={() => setModal(attachment)} />
