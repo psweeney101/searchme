@@ -14,7 +14,7 @@ export const Paginator: FC<Props> = (props: Props): ReactElement => {
   const start = Math.min((props.page - 1) * props.messagesPerPage + 1, props.total);
   const end = Math.min(start + props.messagesPerPage - 1, props.total);
 
-  const maxPage = Math.ceil(props.total / props.messagesPerPage);
+  const maxPage = props.total ? Math.ceil(props.total / props.messagesPerPage) : 1;
 
   return (
     <div style={styles.wrapper}>

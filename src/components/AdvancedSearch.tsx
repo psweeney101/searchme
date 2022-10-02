@@ -2,34 +2,83 @@ import { FC, ReactElement, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { Accordion, Button, Dropdown, Form, Icon } from 'semantic-ui-react';
-import { GMChat } from 'src/interfaces';
+import { GMChat, Styles } from 'src/interfaces';
 
 type Props = {
-  chat?: GMChat;
+  chat: GMChat;
+  query: string;
   startDate: string;
   endDate: string;
   sentBy: string;
   likedBy: string;
   attachments: string;
   setSearchParam: (name: string, value?: string | string[] | number) => void;
-  reset: () => void;
 };
+
+const ATTACHMENTS: { name: string; id: string; color: string }[] = [
+  { name: 'Image', id: 'image', color: 'red' },
+  { name: 'Linked Image', id: 'linked_image', color: 'blue' },
+  { name: 'Event', id: 'event', color: 'black' },
+  { name: 'Poll', id: 'poll', color: 'purple' },
+  { name: 'File', id: 'file', color: 'olive' },
+  { name: 'Location', id: 'location', color: 'yellow' },
+  { name: 'Video', id: 'video', color: 'pink' },
+];
 
 export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
   const [active, setActive] = useState(false);
 
-  const sentBy = props.sentBy.split(',') || [];
-  const likedBy = props.likedBy.split(',') || [];
-  const attachments = props.attachments.split(',') || [];
+  const query = props.query.trim();
+  const sentBy = props.sentBy.split(',').filter(s => s);
+  const likedBy = props.likedBy.split(',').filter(l => l);
+  const attachments = props.attachments.split(',').filter(a => a);
 
   const startDate = props.startDate ? new Date(props.startDate) : null;
   const endDate = props.endDate ? new Date(props.endDate) : null;
 
+  /** Maps an ID to the user */
+  const getUser = (id: string) => props.chat.members.find(m => m.id === id)?.name;
+  /** Maps an attachment id to its name */
+  const getAttachment = (id: string) => ATTACHMENTS.find(a => a.id === id)?.name;
+
+  const reset = () => {
+    props.setSearchParam('query');
+    props.setSearchParam('startDate');
+    props.setSearchParam('endDate');
+    props.setSearchParam('sentBy');
+    props.setSearchParam('likedBy');
+    props.setSearchParam('attachments');
+  };
+
   return (
     <>
       <Accordion.Title active={active} onClick={() => setActive(!active)}>
-        <Icon name="dropdown" />
-        Advanced Search
+        <div style={styles.header}>
+          <Icon name="dropdown" />
+          Advanced Search
+
+          <div className="spacer"></div>
+
+          <Button
+            negative
+            size="mini"
+            onClick={e => { e.stopPropagation(); reset(); }}
+            style={{ visibility: query || startDate || endDate || sentBy.length || likedBy.length || attachments.length ? 'visible' : 'hidden' }}
+          >
+            <Icon name="x" />
+            Clear Filters
+          </Button>
+        </div>
+
+        {active ? null : (
+          <div style={styles.subheader}>
+            <div>{startDate && `Start Date: ${startDate.toLocaleDateString()}`}</div>
+            <div>{endDate && `End Date: ${endDate.toLocaleDateString()}`}</div>
+            <div>{!!sentBy.length && `Sent by: ${sentBy.map(getUser).join(', ')}`}</div>
+            <div>{!!likedBy.length && `Liked by: ${likedBy.map(getUser).join(', ')}`}</div>
+            <div>{!!attachments.length && `Attachments: ${attachments.map(getAttachment).join(', ')}`}</div>
+          </div>
+        )}
       </Accordion.Title>
 
       <Accordion.Content active={active}>
@@ -60,23 +109,24 @@ export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
 
           <Form.Field>
             <label>Attachments</label>
-            <Dropdown placeholder="Select attachment types..." fluid multiple search selection value={attachments} options={[
-              { text: "Image", value: "image", label: { color: "red", empty: true, circular: true } },
-              { text: "Linked Image", value: "linked_image", label: { color: "blue", empty: true, circular: true } },
-              { text: "Event", value: "event", label: { color: "black", empty: true, circular: true } },
-              { text: "Poll", value: "poll", label: { color: "purple", empty: true, circular: true } },
-              { text: "File", value: "file", label: { color: "olive", empty: true, circular: true } },
-              { text: "Location", value: "location", label: { color: "yellow", empty: true, circular: true } },
-              { text: "Video", value: "video", label: { color: "pink", empty: true, circular: true } },
-            ]} onChange={(_, data) => props.setSearchParam('attachments', data.value as string[])} />
+            <Dropdown placeholder="Select attachment types..." fluid multiple search selection value={attachments}
+              options={ATTACHMENTS.map(a => ({ text: a.name, value: a.id, label: { color: a.color, empty: true, circular: true } }))}
+              onChange={(_, data) => props.setSearchParam('attachments', data.value as string[])} />
           </Form.Field>
-
-          <Button negative onClick={() => props.reset()}>
-            <Icon name="x" />
-            Clear Filters
-          </Button>
         </Form>
       </Accordion.Content>
     </>
   );
+}
+
+const styles: Styles = {
+  header: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  subheader: {
+    fontSize: '0.75em',
+    fontWeight: 'normal',
+    lineHeight: 'normal',
+  }
 }

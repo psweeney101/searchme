@@ -1,9 +1,10 @@
 import { FC, ReactElement, useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import { Accordion, Button, Divider, Dropdown, Feed, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
-import { compareAsc, compareDesc } from 'date-fns';
+import { DebounceInput } from 'react-debounce-input';
+import { compareAsc, compareDesc, endOfDay, isAfter, isBefore, startOfDay } from 'date-fns';
 import { GMChatType, GMChat, GMMessage, MessageSort, Styles } from 'src/interfaces';
-import { GroupMe } from 'src/services';
+import { compare, GroupMe } from 'src/services';
 import { AdvancedSearch, Avatar, Message, Paginator } from 'src/components';
 
 type Props = { type: GMChatType };
@@ -78,7 +79,21 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   useEffect(() => {
     if (messages) {
       console.log('Filter!', messages, query, startDate, endDate, sentBy, likedBy, attachments);
-      setFiltered([...messages]);
+      const start = startDate && startOfDay(new Date(startDate));
+      const end = endDate && endOfDay(new Date(endDate));
+      const senders = sentBy.split(',').filter(s => s);
+      const likers = likedBy.split(',').filter(l => l);
+      const attchs = attachments.split(',').filter(a => a);
+
+      const results = messages.filter(message => (
+        (compare(query, message.text)) &&
+        (!start || isAfter(message.created_at, start)) &&
+        (!end || isBefore(message.created_at, end)) &&
+        (!senders.length || senders.includes(message.user.id)) &&
+        (!likers.length || message.liked_by.some(id => likers.includes(id))) &&
+        (!attchs.length || message.attachments.some(attch => attchs.includes(attch.type)))
+      ));
+      setFiltered(results);
     }
   }, [messages, query, startDate, endDate, sentBy, likedBy, attachments]);
 
@@ -90,20 +105,25 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
       let sortFn = defaultSort;
       if (sort === MessageSort.LeastRecent) {
         sortFn = (a, b) => compareAsc(a.created_at, b.created_at);
-      } else if (sort === MessageSort.NameAZ) {
-        sortFn = (a, b) => a.user.name.localeCompare(b.user.name);
-      } else if (sort === MessageSort.NameZA) {
-        sortFn = (a, b) => b.user.name.localeCompare(a.user.name);
       } else if (sort === MessageSort.MostLiked) {
         sortFn = (a, b) => b.liked_by.length - a.liked_by.length;
       } else if (sort === MessageSort.LeastLiked) {
         sortFn = (a, b) => a.liked_by.length - b.liked_by.length;
+      }else if (sort === MessageSort.NameAZ) {
+        sortFn = (a, b) => a.user.name.localeCompare(b.user.name);
+      } else if (sort === MessageSort.NameZA) {
+        sortFn = (a, b) => b.user.name.localeCompare(a.user.name);
+      } else if (sort === MessageSort.Longest) {
+        sortFn = (a, b) => (b.text?.length ?? 0) - (a.text?.length ?? 0);
+      } else if (sort === MessageSort.Shortest) {
+        sortFn = (a, b) => (a.text?.length ?? 0) - (b.text?.length ?? 0);
       }
 
-      setSorted([...filtered].sort((a, b) => {
+      const results = [...filtered].sort((a, b) => {
         const num = sortFn(a, b);
         return num === 0 ? defaultSort(a, b) : num;
-      }));
+      });
+      setSorted(results);
     }
   }, [filtered, sort]);
 
@@ -112,15 +132,20 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
     if (sorted) {
       console.log('Page!', sorted, page);
       // Ensure page is valid
-      const maxPage = Math.ceil(sorted.length / MESSAGES_PER_PAGE);
+      const maxPage = sorted.length ? Math.ceil(sorted.length / MESSAGES_PER_PAGE) : 1;
       if (page < 1) {
         return setSearchParam('page');
-      } else if (page > maxPage) {
+      } else if (page > maxPage && maxPage > 0) {
         return setSearchParam('page', maxPage);
       }
 
+      if (page === 1) {
+        setSearchParam('page');
+      }
+
       const start = (page - 1) * MESSAGES_PER_PAGE;
-      setPaginated(sorted.slice(start, start + MESSAGES_PER_PAGE));
+      const results = sorted.slice(start, start + MESSAGES_PER_PAGE);
+      setPaginated(results);
     }
   }, [sorted, page, setSearchParam]);
 
@@ -134,6 +159,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
         params.delete('sentBy');
         params.delete('likedBy');
         params.delete('attachments');
+        params.delete('sort');
         params.delete('page');
         return params;
       });
@@ -168,30 +194,26 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
         ? (
           <>
             <div style={styles.search}>
-              <Input fluid icon='search' placeholder="Search..." value={query} onChange={event => setSearchParam('query', event.target.value)} style={{ flex: 2 }} />
+              <Input fluid icon='search' placeholder="Search..." style={{ flex: 2 }} input={<DebounceInput value={query} debounceTimeout={500} onChange={event => setSearchParam('query', event.target.value)} />} />
 
               <Dropdown fluid selection value={sort} options={Object.values(MessageSort).map(option => ({ text: option, value: option }))} onChange={(_, { value }) => setSearchParam('sort', value === MessageSort.MostRecent ? undefined : value as MessageSort)} style={{ flex: 1 }} />
             </div>
 
             <Accordion fluid styled>
-              <AdvancedSearch chat={chat} startDate={startDate} endDate={endDate} sentBy={sentBy} likedBy={likedBy} attachments={attachments} setSearchParam={setSearchParam} reset={() => {
-                setSearchParams(params => {
-                  params.delete('query');
-                  params.delete('startDate');
-                  params.delete('endDate');
-                  params.delete('sentBy');
-                  params.delete('likedBy');
-                  params.delete('attachments');
-                  return params;
-                });
-              }} />
+              <AdvancedSearch chat={chat} query={query} startDate={startDate} endDate={endDate} sentBy={sentBy} likedBy={likedBy} attachments={attachments} setSearchParam={setSearchParam} />
             </Accordion>
 
-            <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
-            <Feed>
-              {paginated.map(message => <Message key={message.id} chat={chat} message={message} />)}
-            </Feed>
-            <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam}/>
+            {paginated.length ? (
+              <>
+                <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
+                <Feed>
+                  {paginated.map(message => <Message key={message.id} chat={chat} message={message} />)}
+                </Feed>
+                <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
+              </>
+            ) : <div style={styles.empty}>No Results</div>
+            }
+
           </>
         )
         : (
@@ -225,4 +247,9 @@ const styles: Styles = {
   progress: {
     margin: 0,
   },
+  empty: {
+    textAlign: 'center',
+    padding: '1.5rem',
+    fontWeight: 'bold',
+  }
 }
