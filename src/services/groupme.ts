@@ -115,7 +115,6 @@ export class GroupMe {
       const { data: { response } } = await axios.get<{ meta: { code: number }; response: T; }>(route.toString());
       return response;
     } catch (error) {
-      console.error(error);
       if (++attempts < 5) {
         return this.fetch(url, attempts);
       }

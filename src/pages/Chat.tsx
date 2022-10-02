@@ -59,7 +59,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-fetch chat after type/id are set
   useEffect(() => {
     if (id) {
-      console.log('Get chat!', props.type, id);
       GroupMe.getChat(props.type, id)
         .then(setChat)
         .catch(() => window.location.href = '/');
@@ -69,7 +68,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-fetch messages after chat is set
   useEffect(() => {
     if (chat) {
-      console.log('Get messages!', chat);
       GroupMe.getMessages(chat.type, chat.id, chat.num_messages, setProgress)
         .then(setMessages);
     }
@@ -78,7 +76,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-filter after messages are loaded or filter params change
   useEffect(() => {
     if (messages) {
-      console.log('Filter!', messages, query, startDate, endDate, sentBy, likedBy, attachments);
       const start = startDate && startOfDay(new Date(startDate));
       const end = endDate && endOfDay(new Date(endDate));
       const senders = sentBy.split(',').filter(s => s);
@@ -100,7 +97,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-sort after filter or sort changes
   useEffect(() => {
     if (filtered) {
-      console.log('Sort!', filtered, sort);
       const defaultSort: (a: GMMessage, b: GMMessage) => number = (a, b) => compareDesc(a.created_at, b.created_at);
       let sortFn = defaultSort;
       if (sort === MessageSort.LeastRecent) {
@@ -130,7 +126,6 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-page after sorting or page changes
   useEffect(() => {
     if (sorted) {
-      console.log('Page!', sorted, page);
       // Ensure page is valid
       const maxPage = sorted.length ? Math.ceil(sorted.length / MESSAGES_PER_PAGE) : 1;
       if (page < 1) {

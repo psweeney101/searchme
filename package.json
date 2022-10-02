@@ -1,5 +1,6 @@
 {
   "name": "searchme",
+  "description": "Search or download your GroupMe messages.",
   "version": "0.1.0",
   "private": true,
   "scripts": {
