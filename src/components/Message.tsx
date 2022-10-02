@@ -26,7 +26,7 @@ export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElemen
   }
 
   return (
-    <Feed.Event>
+    <Feed.Event id={message.id}>
       <Feed.Label>
         <Avatar type={message.user.id === 'system' ? 'group' : 'user'} src={message.user.image_url} alt={message.user.name} />
       </Feed.Label>

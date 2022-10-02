@@ -109,7 +109,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
         sortFn = (a, b) => b.liked_by.length - a.liked_by.length;
       } else if (sort === MessageSort.LeastLiked) {
         sortFn = (a, b) => a.liked_by.length - b.liked_by.length;
-      }else if (sort === MessageSort.NameAZ) {
+      } else if (sort === MessageSort.NameAZ) {
         sortFn = (a, b) => a.user.name.localeCompare(b.user.name);
       } else if (sort === MessageSort.NameZA) {
         sortFn = (a, b) => b.user.name.localeCompare(a.user.name);
@@ -152,19 +152,32 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
   // Re-filter/sort/page and scroll to message when hash changes
   useEffect(() => {
     if (hash) {
-      setSearchParams(params => {
-        params.delete('query');
-        params.delete('startDate');
-        params.delete('endDate');
-        params.delete('sentBy');
-        params.delete('likedBy');
-        params.delete('attachments');
-        params.delete('sort');
-        params.delete('page');
-        return params;
-      });
+      const id = hash.replace('#', '');
+      setSearchParam('query');
+      setSearchParam('startDate');
+      setSearchParam('endDate');
+      setSearchParam('sentBy');
+      setSearchParam('likedBy');
+      setSearchParam('attachments');
+      setSearchParam('sort');
+      setTimeout(() => {
+        if (messages) {
+          const index = messages?.findIndex(m => m.id === id) || -1;
+          if (index > -1) {
+            const page = Math.ceil(index / MESSAGES_PER_PAGE);
+            setSearchParam('page', page);
+
+            setTimeout(() => {
+              const el = document.getElementById(id);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+              }
+            }, 100);
+          }
+        }
+      }, 100)
     }
-  }, [hash, setSearchParams]);
+  }, [hash, setSearchParam, messages]);
 
   return (
     <div>
