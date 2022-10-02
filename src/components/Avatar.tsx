@@ -25,7 +25,7 @@ export const Avatar: FC<Props> = (props: Props): ReactElement => {
       objectFit: 'cover',
       marginLeft: 'auto',
       display: 'block',
-      borderRadius: props.type === 'group' ? '.3125em' : '500rem%',
+      borderRadius: props.type === 'group' ? '.3125em' : '500rem',
     }}
   />
 }
