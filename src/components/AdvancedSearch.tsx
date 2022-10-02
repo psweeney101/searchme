@@ -1,8 +1,8 @@
-import { FC, ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import DatePicker from 'react-datepicker';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 import { Accordion, Button, Dropdown, Form, Icon } from 'semantic-ui-react';
-import { GMChat, Styles } from 'src/interfaces';
+import { GMChat, SearchParam, SetSearchParams, Styles } from 'src/interfaces';
 
 type Props = {
   chat: GMChat;
@@ -12,7 +12,7 @@ type Props = {
   sentBy: string;
   likedBy: string;
   attachments: string;
-  setSearchParam: (name: string, value?: string | string[] | number) => void;
+  setSearchParams: SetSearchParams;
 };
 
 const ATTACHMENTS: { name: string; id: string; color: string }[] = [
@@ -25,7 +25,7 @@ const ATTACHMENTS: { name: string; id: string; color: string }[] = [
   { name: 'Video', id: 'video', color: 'pink' },
 ];
 
-export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
+export function AdvancedSearch(props: Props): ReactElement {
   const [active, setActive] = useState(false);
 
   const query = props.query.trim();
@@ -41,15 +41,6 @@ export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
   /** Maps an attachment id to its name */
   const getAttachment = (id: string) => ATTACHMENTS.find(a => a.id === id)?.name;
 
-  const reset = () => {
-    props.setSearchParam('query');
-    props.setSearchParam('startDate');
-    props.setSearchParam('endDate');
-    props.setSearchParam('sentBy');
-    props.setSearchParam('likedBy');
-    props.setSearchParam('attachments');
-  };
-
   return (
     <>
       <Accordion.Title active={active} onClick={() => setActive(!active)}>
@@ -62,7 +53,17 @@ export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
           <Button
             negative
             size="mini"
-            onClick={e => { e.stopPropagation(); reset(); }}
+            onClick={e => {
+              e.stopPropagation();
+              props.setSearchParams([
+                { name: SearchParam.Query },
+                { name: SearchParam.StartDate },
+                { name: SearchParam.EndDate },
+                { name: SearchParam.SentBy },
+                { name: SearchParam.LikedBy },
+                { name: SearchParam.Attachments },
+              ]);
+            }}
             style={{ visibility: query || startDate || endDate || sentBy.length || likedBy.length || attachments.length ? 'visible' : 'hidden' }}
           >
             <Icon name="x" />
@@ -85,33 +86,64 @@ export const AdvancedSearch: FC<Props> = (props: Props): ReactElement => {
         <Form>
           <Form.Field>
             <label>Start Date</label>
-            <DatePicker placeholderText="mm/dd/yyyy" selected={startDate} maxDate={endDate} onChange={date => props.setSearchParam('startDate', date?.toLocaleDateString())} />
+            <DatePicker
+              placeholderText="mm/dd/yyyy"
+              selected={startDate}
+              maxDate={endDate}
+              onChange={date => props.setSearchParams([{ name: SearchParam.StartDate, value: date?.toLocaleDateString() }])}
+            />
           </Form.Field>
 
           <Form.Field>
             <label>End Date</label>
-            <DatePicker placeholderText="mm/dd/yyyy" selected={endDate} minDate={startDate} onChange={date => props.setSearchParam('endDate', date?.toLocaleDateString())} />
+            <DatePicker
+              placeholderText="mm/dd/yyyy"
+              selected={endDate}
+              minDate={startDate}
+              onChange={date => props.setSearchParams([{ name: SearchParam.EndDate, value: date?.toLocaleDateString() }])}
+            />
           </Form.Field>
 
           <Form.Field>
             <label>Sent by</label>
-            <Dropdown placeholder="Select members..." fluid multiple search selection value={sentBy} options={
-              props.chat?.members.map(member => ({ text: member.name, value: member.id })) || []
-            } onChange={(_, data) => props.setSearchParam('sentBy', data.value as string[])} />
+            <Dropdown
+              placeholder="Select members..."
+              fluid
+              multiple
+              search
+              selection
+              value={sentBy}
+              options={props.chat?.members.map(member => ({ text: member.name, value: member.id })) || []}
+              onChange={(_, data) => props.setSearchParams([{ name: SearchParam.SentBy, value: data.value as string[] }])}
+            />
           </Form.Field>
 
           <Form.Field>
             <label>Liked by</label>
-            <Dropdown placeholder="Select members..." fluid multiple search selection value={likedBy} options={
-              props.chat?.members.map(member => ({ text: member.name, value: member.id })) || []
-            } onChange={(_, data) => props.setSearchParam('likedBy', data.value as string[])} />
+            <Dropdown
+              placeholder="Select members..."
+              fluid
+              multiple
+              search
+              selection
+              value={likedBy}
+              options={props.chat?.members.map(member => ({ text: member.name, value: member.id })) || []}
+              onChange={(_, data) => props.setSearchParams([{ name: SearchParam.LikedBy, value: data.value as string[] }])}
+            />
           </Form.Field>
 
           <Form.Field>
             <label>Attachments</label>
-            <Dropdown placeholder="Select attachment types..." fluid multiple search selection value={attachments}
+            <Dropdown
+              placeholder="Select attachment types..."
+              fluid
+              multiple
+              search
+              selection
+              value={attachments}
               options={ATTACHMENTS.map(a => ({ text: a.name, value: a.id, label: { color: a.color, empty: true, circular: true } }))}
-              onChange={(_, data) => props.setSearchParam('attachments', data.value as string[])} />
+              onChange={(_, data) => props.setSearchParams([{ name: SearchParam.Attachments, value: data.value as string[] }])}
+            />
           </Form.Field>
         </Form>
       </Accordion.Content>

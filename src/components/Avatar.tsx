@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { Image } from 'semantic-ui-react';
 import groupNoAvatar from 'src/assets/group-no-avatar.png';
 import userNoAvatar from 'src/assets/user-no-avatar.png';
@@ -10,7 +10,7 @@ type Props = {
   size?: string;
 };
 
-export const Avatar: FC<Props> = (props: Props): ReactElement => {
+export function Avatar(props: Props): ReactElement {
   const fallback = props.type === 'group' ? groupNoAvatar : userNoAvatar;
 
   return <Image

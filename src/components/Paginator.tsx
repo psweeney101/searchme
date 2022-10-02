@@ -1,16 +1,16 @@
-import { FC, ReactElement } from 'react';
+import { ReactElement } from 'react';
 import { Button, Header } from 'semantic-ui-react';
-import { Styles } from 'src/interfaces';
+import { SearchParam, SetSearchParams, Styles } from 'src/interfaces';
 
 type Props = {
   page: number;
   displayed: number;
   total: number;
   messagesPerPage: number;
-  setSearchParam: (name: string, value?: string | string[] | number) => void;
+  setSearchParams: SetSearchParams;
 };
 
-export const Paginator: FC<Props> = (props: Props): ReactElement => {
+export function Paginator(props: Props): ReactElement {
   const start = Math.min((props.page - 1) * props.messagesPerPage + 1, props.total);
   const end = Math.min(start + props.messagesPerPage - 1, props.total);
 
@@ -18,8 +18,16 @@ export const Paginator: FC<Props> = (props: Props): ReactElement => {
 
   return (
     <div style={styles.wrapper}>
-      <Button icon="angle double left" style={{ visibility: props.page !== 1 ? 'visible': 'hidden' }} onClick={() => props.setSearchParam('page')} />
-      <Button icon="angle left" style={{ visibility: props.page > 1 ? 'visible': 'hidden' }} onClick={() => props.setSearchParam('page', props.page - 1)}  />
+      <Button
+        icon="angle double left"
+        style={{ visibility: props.page !== 1 ? 'visible' : 'hidden' }}
+        onClick={() => props.setSearchParams([{ name: SearchParam.Page }])}
+      />
+      <Button
+        icon="angle left"
+        style={{ visibility: props.page > 1 ? 'visible' : 'hidden' }}
+        onClick={() => props.setSearchParams([{ name: SearchParam.Page, value: props.page - 1 }])}
+      />
 
       <span className="spacer" />
 
@@ -29,8 +37,16 @@ export const Paginator: FC<Props> = (props: Props): ReactElement => {
 
       <span className="spacer" />
 
-      <Button icon="angle right" style={{ visibility: props.page < maxPage ? 'visible': 'hidden' }} onClick={() => props.setSearchParam('page', props.page + 1)} />
-      <Button icon="angle double right" style={{ visibility: props.page !== maxPage ? 'visible': 'hidden' }} onClick={() => props.setSearchParam('page', maxPage)} />
+      <Button
+        icon="angle right"
+        style={{ visibility: props.page < maxPage ? 'visible' : 'hidden' }}
+        onClick={() => props.setSearchParams([{ name: SearchParam.Page, value: props.page + 1 }])}
+      />
+      <Button
+        icon="angle double right"
+        style={{ visibility: props.page !== maxPage ? 'visible' : 'hidden' }}
+        onClick={() => props.setSearchParams([{ name: SearchParam.Page, value: maxPage }])}
+      />
     </div>
   );
 }

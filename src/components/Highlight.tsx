@@ -1,4 +1,4 @@
-import { FC, ReactElement } from 'react';
+import { ReactElement } from 'react';
 import reactStringReplace from 'react-string-replace';
 
 type Props = {
@@ -6,7 +6,7 @@ type Props = {
   query: string;
 };
 
-export const Highlight: FC<Props> = (props: Props): ReactElement => {
+export function Highlight (props: Props): ReactElement {
   // Match URLs
   let text = reactStringReplace(props.text, /(https?:\/\/\S+)/g, (match, i) => (
     <a key={match + i} href={match} target="_blank" rel="noreferrer">{match}</a>

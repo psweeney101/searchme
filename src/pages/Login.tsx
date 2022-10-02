@@ -1,4 +1,4 @@
-import { Component, ReactNode } from 'react';
+import { ReactElement } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button, Divider, Header, Icon, Image } from 'semantic-ui-react';
 import { GroupMe } from 'src/services';
@@ -7,57 +7,86 @@ import banner from 'src/assets/searchme-text.png';
 import icon from 'src/assets/searchme-icon.png';
 
 type Props = {};
-type State = {};
 
-export class Login extends Component<Props, State> {
-  render(): ReactNode {
-    if (GroupMe.authenticated) {
-      return <Navigate to="/" />
-    }
+export function Login(props: Props): ReactElement {
+  if (GroupMe.authenticated) {
+    return <Navigate to="/" />
+  }
 
-    return (
-      <div style={styles.wrapper}>
-        <div style={styles.banner_wrapper}>
-          <Image src={banner} centered style={styles.banner} alt="SearchMe banner" />
-        </div>
+  return (
+    <div style={styles.wrapper}>
+      <div style={styles.banner_wrapper}>
+        <Image
+          src={banner}
+          centered
+          style={styles.banner}
+          alt="SearchMe banner"
+        />
+      </div>
 
-        <div style={styles.icon_wrapper}>
-          <Image src={icon} centered style={styles.icon} alt="SearchMe icon" />
-        </div>
+      <div style={styles.icon_wrapper}>
+        <Image
+          src={icon}
+          centered
+          style={styles.icon}
+          alt="SearchMe icon"
+        />
+      </div>
 
-        <Header textAlign="center" style={styles.subtitle}>
-          Search your GroupMe messages
-        </Header>
+      <Header textAlign="center" style={styles.subtitle}>
+        Search your GroupMe messages
+      </Header>
 
-        <Button as="a" style={styles.login} href={GroupMe.LOGIN_URL}>
-          <Icon name="sign-in" />
-          Login with GroupMe
+      <Button as="a" style={styles.login} href={GroupMe.LOGIN_URL}>
+        <Icon name="sign-in" />
+        Login with GroupMe
+      </Button>
+
+      <div className="spacer" />
+
+      <Divider horizontal style={styles.learn_more}>
+        Learn More
+      </Divider>
+
+      <div style={styles.links}>
+        <Button
+          as={Link}
+          circular
+          icon
+          style={styles.link}
+          to="/about"
+        >
+          <Icon name="info circle" style={styles.link_icon} />
         </Button>
 
-        <div className="spacer" />
+        <Button
+          as="a"
+          circular
+          icon
+          style={styles.link}
+          href="https://github.com/psweeney101/searchme"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Icon name="github" style={styles.link_icon} />
+        </Button>
 
-        <Divider horizontal style={styles.learn_more}>
-          Learn More
-        </Divider>
-
-        <div style={styles.links}>
-          <Button as={Link} circular icon style={styles.link} to="/about">
-            <Icon name="info circle" style={styles.link_icon} />
-          </Button>
-
-          <Button as="a" circular icon style={styles.link} href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer">
-            <Icon name="github" style={styles.link_icon} />
-          </Button>
-
-          <Button as="a" circular icon style={styles.link} href="https://www.buymeacoffee.com/psweeney101" target="_blank" rel="noreferrer">
-            <Icon name="coffee" style={styles.link_icon} />
-          </Button>
-        </div>
-
-        <div style={styles.powered_by_groupme}>Powered by GroupMe®</div>
+        <Button
+          as="a"
+          circular
+          icon
+          style={styles.link}
+          href="https://www.buymeacoffee.com/psweeney101"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Icon name="coffee" style={styles.link_icon} />
+        </Button>
       </div>
-    )
-  }
+
+      <div style={styles.powered_by_groupme}>Powered by GroupMe®</div>
+    </div>
+  )
 }
 
 const styles: Styles = {
