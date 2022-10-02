@@ -10,7 +10,7 @@ type Props = {};
 type State = {};
 
 export class Login extends Component<Props, State> {
-  render(): ReactNode  {
+  render(): ReactNode {
     if (GroupMe.authenticated) {
       return <Navigate to="/" />
     }
@@ -41,11 +41,17 @@ export class Login extends Component<Props, State> {
         </Divider>
 
         <div style={styles.links}>
-          <Button as={Link} circular size="large" icon="info" to="/about" />
+          <Button as={Link} circular icon style={styles.link} to="/about">
+            <Icon name="info circle" style={styles.link_icon} />
+          </Button>
 
-          <Button as="a" circular size="large"  icon="github" href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer" />
+          <Button as="a" circular icon style={styles.link} href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer">
+            <Icon name="github" style={styles.link_icon} />
+          </Button>
 
-          <Button as="a" circular size="large"  icon="coffee" href="https://www.buymeacoffee.com/psweeney101" target="_blank" rel="noreferrer" />
+          <Button as="a" circular icon style={styles.link} href="https://www.buymeacoffee.com/psweeney101" target="_blank" rel="noreferrer">
+            <Icon name="coffee" style={styles.link_icon} />
+          </Button>
         </div>
 
         <div style={styles.powered_by_groupme}>Powered by GroupMe®</div>
@@ -56,8 +62,8 @@ export class Login extends Component<Props, State> {
 
 const styles: Styles = {
   wrapper: {
-    maxWidth: '100vw',
-    minHeight: '100vh',
+    width: '100%',
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
@@ -96,6 +102,18 @@ const styles: Styles = {
     justifyContent: 'center',
     gap: '24px',
     padding: '24px',
+  },
+  link: {
+    background: 'rgb(116, 118, 120)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  link_icon: {
+    color: 'white',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   powered_by_groupme: {
     textAlign: 'center',

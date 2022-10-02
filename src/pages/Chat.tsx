@@ -235,9 +235,9 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
                 </Feed>
                 <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
 
-                <Dropdown button labeled className="icon secondary" icon="download" text="Download">
+                <Dropdown button labeled className="icon secondary" icon="download" text="Download Messages">
                   <Dropdown.Menu>
-                    <Dropdown.Header content="Download Messages" />
+                    <Dropdown.Header content="Download" />
                     <Dropdown.Divider />
                     <Dropdown.Item icon="list" content={`All Messages (${messages.length.toLocaleString()})`} onClick={() => download(messages)} />
                     <Dropdown.Item icon="filter" content={`Filtered Messages (${filtered.length.toLocaleString()})`} onClick={() => download(sorted)} />
