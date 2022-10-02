@@ -28,7 +28,7 @@ export class GroupMe {
   /** Gets info about the current user */
   static async getUser(): Promise<GMChat['members'][0]> {
     const user = await this.fetch<{ id: string; name: string; image_url: string }>('users/me');
-    return { id: user.id, name: user.name, image_url: user.image_url };
+    return { id: user.id, name: user.name, image_url: this.handleURL(user.image_url) };
   }
 
   /** Lists all Groups and DMs the user has access to */
@@ -42,9 +42,9 @@ export class GroupMe {
     );
 
     const previews: GMChatPreview[] = groups.map(group => (
-      { type: GMChatType.Group, id: group.id, name: group.name, image_url: group.image_url, updated_at: new Date((group.messages.last_message_created_at || group.created_at) * 1000) }
+      { type: GMChatType.Group, id: group.id, name: group.name, image_url: this.handleURL(group.image_url), updated_at: new Date((group.messages.last_message_created_at || group.created_at) * 1000) }
     )).concat(chats.map(chat => (
-      { type: GMChatType.DM, id: String(chat.other_user.id), name: chat.other_user.name, image_url: chat.other_user.avatar_url, updated_at: new Date((chat.last_message.created_at || chat.created_at) * 1000) }
+      { type: GMChatType.DM, id: String(chat.other_user.id), name: chat.other_user.name, image_url: this.handleURL(chat.other_user.avatar_url), updated_at: new Date((chat.last_message.created_at || chat.created_at) * 1000) }
     ))).sort((a, b) => +b.updated_at - +a.updated_at);
 
     return previews;
@@ -56,7 +56,7 @@ export class GroupMe {
       const group = await this.fetch<{ id: string; name: string; image_url: string; members: { user_id: string; nickname: string; image_url: string; }[]; messages: { count: number }; }>(
         `groups/${id}`
       );
-      return { type, id, name: group.name, image_url: group.image_url, members: group.members.map(member => ({ id: member.user_id, name: member.nickname, image_url: member.image_url })).sort((a, b) => a.name?.localeCompare(b.name)), num_messages: group.messages.count };
+      return { type, id, name: group.name, image_url: this.handleURL(group.image_url), members: group.members.map(member => ({ id: member.user_id, name: member.nickname, image_url: this.handleURL(member.image_url) })).sort((a, b) => a.name?.localeCompare(b.name)), num_messages: group.messages.count };
     }
     if (type === GMChatType.DM) {
       const chats = await this.fetch<{ other_user: { id: number; name: string; avatar_url: string; }; messages_count: number }[]>(
@@ -64,7 +64,7 @@ export class GroupMe {
       );
       const chat = chats.find(c => String(c.other_user.id) === id);
       if (!chat) throw new Error('Chat not found');
-      return { type, id, name: chat.other_user.name, image_url: chat.other_user.avatar_url, members: [{ id: String(chat.other_user.id), name: chat.other_user.name, image_url: chat.other_user.avatar_url }, await this.getUser()], num_messages: chat.messages_count };
+      return { type, id, name: chat.other_user.name, image_url: this.handleURL(chat.other_user.avatar_url), members: [{ id: String(chat.other_user.id), name: chat.other_user.name, image_url: this.handleURL(chat.other_user.avatar_url) }, await this.getUser()], num_messages: chat.messages_count };
     }
     throw new Error('Unrecognized chat type');
   }
@@ -83,14 +83,14 @@ export class GroupMe {
           `groups/${chunk}/messages?limit=${limit}&before_id=${before_id}`
         );
         messages.push(...result.messages.map(message => (
-          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: message.system ? groupMeIcon : message.avatar_url }, attachments: message.attachments, liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
+          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: message.system ? groupMeIcon : this.handleURL(message.avatar_url) }, attachments: message.attachments.map(a => ({ type: a.type, url: this.handleURL(a.url) })), liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
         )));
       } else {
         const result = await this.fetch<{ direct_messages: { id: string; created_at: number; user_id: string; name: string; avatar_url: string; text: string; favorited_by: string[]; attachments: { type: string; url: string }[]; }[] }>(
           `direct_messages?other_user_id=${id}&before_id=${before_id}`
         );
         messages.push(...result.direct_messages.map(message => (
-          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: message.avatar_url }, attachments: message.attachments, liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
+          { id: message.id, text: message.text, user: { id: message.user_id, name: message.name, image_url: this.handleURL(message.avatar_url) }, attachments: message.attachments.map(a => ({ type: a.type, url: this.handleURL(a.url) })), liked_by: message.favorited_by, created_at: new Date(message.created_at * 1000) }
         )));
       }
       before_id = messages[messages.length - 1].id;
@@ -98,6 +98,11 @@ export class GroupMe {
     }
 
     return messages;
+  }
+
+  /** Helper function for converting all URLs to HTTPS */
+  static handleURL(url: string): string {
+    return url?.replace(/http:/, 'https:');
   }
 
   /** Helper function for fetching a GroupMe API */
