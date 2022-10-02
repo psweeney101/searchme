@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
-import { ReactElement, useState } from 'react';
+import { ReactElement, useCallback, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Button, Feed, Icon, Modal, Popup } from 'semantic-ui-react';
 import { GMChat, GMMessage, SearchParam, SetSearchParams, Styles } from 'src/interfaces';
 import { Avatar } from './Avatar';
@@ -24,7 +25,7 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
         key={id}
         hoverable on={['focus', 'hover']}
         trigger={
-          <span>
+          <span tabIndex={0}>
             <Avatar type="user" src={user.image_url} alt={user.name} size="25px" />
           </span>
         }
@@ -33,6 +34,16 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
       </Popup>
     );
   }
+
+  const copy = useCallback(() => {
+    const url = `${window.location.origin}${window.location.pathname}?${SearchParam.MessageID}=${message.id}`;
+    try {
+      navigator.clipboard.writeText(url);
+      toast.success('Copied to clipboard!');
+    } catch (error) {
+      toast.error(`Failed to copy message to clipboard: ${error}`);
+    }
+  }, [message.id]);
 
   return (
     <Feed.Event id={message.id}>
@@ -46,8 +57,28 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
       <Feed.Content style={styles.content}>
         <Feed.Summary>
           <Feed.User as="span">{message.user.name}</Feed.User>
-          <Feed.Date as="a" onClick={() => setSearchParams([{ name: SearchParam.MessageID, value: message.id }])}>
+          <Feed.Date
+            as={Button}
+            inverted
+            onClick={() => setSearchParams([{ name: SearchParam.MessageID, value: message.id }])}
+            tabIndex="0"
+          >
             {format(message.created_at, 'MMM dd yyyy p')}
+          </Feed.Date>
+          <Feed.Date>
+            <Popup
+              trigger={
+                <Icon
+                  name="linkify"
+                  style={{ cursor: 'pointer' }}
+                  tabIndex="0"
+                  onClick={copy}
+                  onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' ? copy() : null}
+                />
+              }
+              content="Copy link to message"
+              size="mini"
+            />
           </Feed.Date>
         </Feed.Summary>
         <Feed.Extra text style={styles.text}>
@@ -61,7 +92,9 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
                   src={attachment.url}
                   alt={message.text}
                   style={styles.media}
+                  tabIndex={0}
                   onClick={() => setModal(attachment)}
+                  onKeyDown={e => e.key === 'Enter' ? setModal(attachment) : null }
                 />
               </div>
             );
@@ -87,7 +120,7 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
             on={['focus', 'hover']}
             disabled={!message.liked_by.length}
             trigger={(
-              <span>
+              <span tabIndex={0}>
                 <Icon name="like" />
                 {message.liked_by.length}
               </span>
@@ -117,7 +150,7 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
             style={styles.modalClose}
             onClick={() => setModal(undefined)}
             content="Close"
-            />
+          />
         </Modal.Content>
       </Modal>
     </Feed.Event>

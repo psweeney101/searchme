@@ -53,6 +53,7 @@ export function Login(props: Props): ReactElement {
           as={Link}
           circular
           icon
+          color="grey"
           style={styles.link}
           to="/about"
         >
@@ -63,6 +64,7 @@ export function Login(props: Props): ReactElement {
           as="a"
           circular
           icon
+          color="grey"
           style={styles.link}
           href="https://github.com/psweeney101/searchme"
           target="_blank"
@@ -75,6 +77,7 @@ export function Login(props: Props): ReactElement {
           as="a"
           circular
           icon
+          color="grey"
           style={styles.link}
           href="https://www.buymeacoffee.com/psweeney101"
           target="_blank"
@@ -133,7 +136,6 @@ const styles: Styles = {
     padding: '24px',
   },
   link: {
-    background: 'rgb(116, 118, 120)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

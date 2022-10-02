@@ -7,6 +7,7 @@ Search or download your GroupMe messages.
 Create an Application on the GroupMe Developer Portal: https://dev.groupme.com/applications. The Callback URL should be `http://<localhost|your-ip-address>:3000/callback`. Once that is created, create a .env file using the `Redirect URL` from your newly registered GroupMe Application:
 ```bash
 REACT_APP_GROUPME_URL="https://oauth.groupme.com/oauth/authorize?client_id=YOUR_CLIENT_ID"
+HTTPS=true
 ```
 
 ## 🚀 Usage

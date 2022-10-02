@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { toast } from 'react-hot-toast';
 import { GMChat, GMChatPreview, GMChatType, GMMessage } from 'src/interfaces';
 import groupMeIcon from 'src/assets/groupme-icon.png';
 
@@ -251,9 +252,9 @@ export class GroupMe {
       }
 
       if (error instanceof AxiosError) {
-        alert(`ERROR: ${error.message}`);
+        toast.error(error.message);
       } else {
-        alert('ERROR: There was a problem fetching data from GroupMe.');
+        toast.error('There was a problem fetching data from GroupMe.');
       }
 
       throw error;

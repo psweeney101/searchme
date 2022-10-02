@@ -84,11 +84,13 @@ export function About(props: Props): ReactElement {
               &nbsp;<a href="https://gitlab.com/catamphetamine/javascript-time-ago" target="_blank" rel="noreferrer">javascript-time-ago</a>,
               &nbsp;<a href="https://reactdatepicker.com" target="_blank" rel="noreferrer">React Datepicker</a>,
               &nbsp;<a href="https://github.com/nkbt/react-debounce-input" target="_blank" rel="noreferrer">react-debounce-input</a>,
+              &nbsp;<a href="https://react-hot-toast.com" target="_blank" rel="noreferrer">React Hot Toast</a>,
               &nbsp;<a href="https://reactrouter.com" target="_blank" rel="noreferrer">React Router</a>,
               &nbsp;<a href="https://github.com/iansinnott/react-string-replace" target="_blank" rel="noreferrer">React String Replace</a>,
               &nbsp;and <a href="https://react.semantic-ui.com" target="_blank" rel="noreferrer">Semantic UI React</a>.
               &nbsp;SearchMe has no database - all of your messages are loaded directly from <a href="https://dev.groupme.com/docs/v3" target="_blank" rel="noreferrer">GroupMe.com</a> into your browser.
               &nbsp;You can check out my <a href="https://github.com/psweeney101/searchme" target="_blank" rel="noreferrer">GitHub repository</a> to see how it's done.
+              &nbsp;Have an idea for a new feature? Or did you encounter a bug? Consider adding an <a href="https://github.com/psweeney101/searchme/issues/new/choose" target="_blank" rel="noreferrer">issue to the Github repository</a>.
             </Item.Description>
           </Item.Content>
         </Item>

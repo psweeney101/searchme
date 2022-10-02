@@ -43,7 +43,12 @@ export function AdvancedSearch(props: Props): ReactElement {
 
   return (
     <>
-      <Accordion.Title active={active} onClick={() => setActive(!active)}>
+      <Accordion.Title
+        active={active}
+        onClick={() => setActive(!active)}
+        onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' ? setActive(!active) : null}
+        tabIndex="0"
+      >
         <div style={styles.header}>
           <Icon name="dropdown" />
           Advanced Search
@@ -64,6 +69,7 @@ export function AdvancedSearch(props: Props): ReactElement {
                 { name: SearchParam.Attachments },
               ]);
             }}
+            onKeyDown={(e: KeyboardEvent) => e.stopPropagation()}
             style={{ visibility: query || startDate || endDate || sentBy.length || likedBy.length || attachments.length ? 'visible' : 'hidden' }}
           >
             <Icon name="x" />

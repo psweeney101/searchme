@@ -1,6 +1,7 @@
 import { Component, ReactNode } from 'react';
 import { Link, Navigate, Outlet } from 'react-router-dom';
 import { Image } from 'semantic-ui-react';
+import { Toaster } from 'react-hot-toast';
 import { GroupMe } from 'src/services';
 import { Styles } from 'src/interfaces';
 import logo from 'src/assets/searchme-logo.png';
@@ -27,6 +28,7 @@ export class App extends Component<Props, State> {
           <a href="https://www.buymeacoffee.com/psweeney101" target="_blank" rel="noreferrer">☕️ Buy Me A Coffee ☕️</a>
           <Link to="/logout">Logout</Link>
         </div>
+        <Toaster position="bottom-center" />
       </div>
     )
   }
