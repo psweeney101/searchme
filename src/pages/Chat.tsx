@@ -207,7 +207,7 @@ export const Chat: FC<Props> = (props: Props): ReactElement => {
               <>
                 <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
                 <Feed>
-                  {paginated.map(message => <Message key={message.id} chat={chat} message={message} />)}
+                  {paginated.map(message => <Message key={message.id} chat={chat} message={message} query={query} />)}
                 </Feed>
                 <Paginator page={page} displayed={paginated.length} total={sorted.length} messagesPerPage={MESSAGES_PER_PAGE} setSearchParam={setSearchParam} />
               </>

@@ -1,15 +1,17 @@
 import { format } from 'date-fns';
 import { FC, ReactElement } from 'react';
+import Highlighter from 'react-highlight-words';
 import { Feed, Icon, Popup } from 'semantic-ui-react';
 import { GMChat, GMMessage, Styles } from 'src/interfaces';
 import { Avatar } from './Avatar';
 
 type Props = {
-  chat: GMChat,
-  message: GMMessage,
+  chat: GMChat;
+  message: GMMessage;
+  query: string;
 };
 
-export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
+export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElement => {
   /** Maps a favoriter to the user */
   const getUser = (id: string) => {
     const user = chat.members.find(m => m.id === id);
@@ -31,7 +33,11 @@ export const Message: FC<Props> = ({ chat, message }: Props): ReactElement => {
           <Feed.User as="span">{message.user.name}</Feed.User>
           <Feed.Date as="a" onClick={() => document.location.hash = message.id}>{format(message.created_at, 'MMM dd yyyy p')}</Feed.Date>
         </Feed.Summary>
-        <Feed.Extra text style={styles.text}>{message.text}</Feed.Extra>
+        <Feed.Extra text style={styles.text}>
+          <Highlighter searchWords={query.split(/\s+/)} textToHighlight={message.text} autoEscape activeIndex={-1}>
+            {message.text}
+          </Highlighter>
+        </Feed.Extra>
         <Feed.Extra images>{message.attachments.map((attachment, index) => {
           if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} height="150px" style={{ width: 'auto' }} />
           if (attachment.type === 'video') return <video key={index} src={`${attachment.url}#t=0.1`} controls preload="metadata" height="150px" />
