@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
-import { FC, ReactElement } from 'react';
+import { FC, ReactElement, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { Feed, Icon, Popup } from 'semantic-ui-react';
+import { Button, Feed, Icon, Modal, Popup } from 'semantic-ui-react';
 import { GMChat, GMMessage, Styles } from 'src/interfaces';
 import { Avatar } from './Avatar';
 
@@ -12,6 +12,8 @@ type Props = {
 };
 
 export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElement => {
+  const [modal, setModal] = useState<GMMessage['attachments'][0] | undefined>(undefined);
+
   /** Maps a favoriter to the user */
   const getUser = (id: string) => {
     const user = chat.members.find(m => m.id === id);
@@ -39,7 +41,7 @@ export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElemen
           </Highlighter>
         </Feed.Extra>
         <Feed.Extra images>{message.attachments.map((attachment, index) => {
-          if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} height="150px" style={{ width: 'auto' }} />
+          if (attachment.type === 'image' || attachment.type === 'linked_image') return <img key={index} src={attachment.url} alt={message.text} height="150px" style={{ width: 'auto', cursor: 'pointer' }} onClick={() => setModal(attachment)} />
           if (attachment.type === 'video') return <video key={index} src={`${attachment.url}#t=0.1`} controls preload="metadata" height="150px" />
           return null;
         })}
@@ -52,6 +54,12 @@ export const Message: FC<Props> = ({ chat, message, query }: Props): ReactElemen
           </Popup>
         </Feed.Meta>
       </Feed.Content>
+      <Modal basic size="small" open={!!modal} onClose={() => setModal(undefined)}>
+        <Modal.Content image style={styles.modalContent}>
+          <img src={modal?.url} style={styles.modalImage} alt="Attachment" />
+          <Button inverted style={styles.modalClose} onClick={() => setModal(undefined)}>Close</Button>
+        </Modal.Content>
+      </Modal>
     </Feed.Event>
   );
 }
@@ -68,4 +76,19 @@ const styles: Styles = {
     flexWrap: 'wrap',
     gap: '7px',
   },
+  modalContent: {
+    flexDirection: 'column',
+    width: 'fit-content',
+    margin: 'auto',
+  },
+  modalImage: {
+    maxHeight: 'calc(100vh - 6em - 36px)',
+    maxWidth: '100%',
+    objectFit: 'contain',
+    margin: 'auto',
+  },
+  modalClose: {
+    width: 'fit-content',
+    marginTop: '1em',
+  }
 }
