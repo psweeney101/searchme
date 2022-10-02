@@ -53,25 +53,30 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
         <Feed.Extra text style={styles.text}>
           <Highlight query={query} text={message.text} />
         </Feed.Extra>
-        <Feed.Extra images>{message.attachments.map((attachment, index) => {
+        <Feed.Extra images style={styles.images}>{message.attachments.map((attachment, index) => {
           if (attachment.type === 'image' || attachment.type === 'linked_image') {
-            return <img
-              key={index}
-              src={attachment.url}
-              alt={message.text}
-              height="150px"
-              style={{ width: 'auto', cursor: 'pointer' }}
-              onClick={() => setModal(attachment)}
-            />
+            return (
+              <div key={index} style={styles.mediaWrapper}>
+                <img
+                  src={attachment.url}
+                  alt={message.text}
+                  style={styles.media}
+                  onClick={() => setModal(attachment)}
+                />
+              </div>
+            );
           }
           if (attachment.type === 'video') {
-            return <video
-              key={index}
-              src={`${attachment.url}#t=0.1`}
-              controls
-              preload="metadata"
-              height="150px"
-            />
+            return (
+              <div key={index} style={styles.mediaWrapper}>
+                <video
+                  src={`${attachment.url}#t=0.1`}
+                  style={styles.media}
+                  controls
+                  preload="metadata"
+                />
+              </div>
+            );
           }
           return null;
         })}
@@ -96,7 +101,8 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
       </Feed.Content>
       <Modal
         basic
-        size="small"
+        size="fullscreen"
+        style={styles.modal}
         open={!!modal}
         onClose={() => setModal(undefined)}
       >
@@ -111,7 +117,7 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
             style={styles.modalClose}
             onClick={() => setModal(undefined)}
             content="Close"
-          />
+            />
         </Modal.Content>
       </Modal>
     </Feed.Event>
@@ -125,24 +131,47 @@ const styles: Styles = {
   text: {
     maxWidth: '100%',
   },
+  images: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '1em',
+  },
+  mediaWrapper: {
+    height: '150px',
+  },
+  media: {
+    height: '100%',
+    width: 'auto',
+    cursor: 'pointer',
+    margin: 0,
+  },
   likers: {
     display: 'flex',
     flexWrap: 'wrap',
     gap: '7px',
   },
+  modal: {
+    position: 'relative',
+    flex: 1,
+    overflow: 'hidden',
+    margin: 0,
+  },
   modalContent: {
-    flexDirection: 'column',
     width: 'fit-content',
+    height: '100%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '1em',
     margin: 'auto',
+    padding: 0,
   },
   modalImage: {
-    maxHeight: 'calc(80vh - 36px)',
     maxWidth: '100%',
-    objectFit: 'contain',
-    margin: 'auto',
+    maxHeight: 'calc(100% - 1em - 36px)',
+    objectFit: 'fill',
   },
   modalClose: {
-    width: 'fit-content',
-    marginTop: '1em',
+    alignSelf: 'flex-start',
   }
 }

@@ -236,7 +236,7 @@ export function Chat(props: Props): ReactElement {
           <Avatar
             type={props.type === GMChatType.Group ? 'group' : 'user'}
             src={chat?.image_url}
-            alt={chat?.name}
+            alt={chat?.name || 'Chat Avatar'}
             size="16vw"
           />
         </div>
@@ -244,7 +244,7 @@ export function Chat(props: Props): ReactElement {
 
       <Warning
         warning
-        hidden={!chat || !messages || chat.num_messages === messages.length || !warning}
+        hidden={!chat || !messages || chat.num_messages <= messages.length || !warning}
         onDismiss={() => setWarning(false)}
       >
         <Warning.Header>GroupMe Messages Missing</Warning.Header>

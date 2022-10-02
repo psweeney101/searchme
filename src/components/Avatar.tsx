@@ -6,7 +6,7 @@ import userNoAvatar from 'src/assets/user-no-avatar.png';
 type Props = {
   type: 'group' | 'user',
   src: string | undefined,
-  alt: string | undefined;
+  alt: string;
   size?: string;
 };
 
