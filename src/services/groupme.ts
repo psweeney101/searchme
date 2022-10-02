@@ -119,9 +119,9 @@ export class GroupMe {
         return this.fetch(url, attempts);
       }
       if (error instanceof AxiosError) {
-        alert(error.message);
+        alert(`ERROR: ${error.message}`);
       } else {
-        alert('Error fetching data from GroupMe.');
+        alert('ERROR: There was a problem fetching data from GroupMe.');
       }
       throw error;
     }
