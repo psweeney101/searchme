@@ -12,6 +12,10 @@ export function Home(props: Props): ReactElement {
   const [chats, setChats] = useState<GMChatPreview[] | null>();
   const [filtered, setFiltered] = useState<typeof chats>(chats);
 
+  useEffect(() => {
+    window.document.title = 'SearchMe';
+  }, []);
+
   useMemo(() => {
     GroupMe.getChatPreviews().then(setChats);
   }, []);

@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { Button, Divider, Header, Icon, Image } from 'semantic-ui-react';
 import { GroupMe } from 'src/services';
@@ -9,6 +9,10 @@ import icon from 'src/assets/searchme-icon.png';
 type Props = {};
 
 export function Login(props: Props): ReactElement {
+  useEffect(() => {
+    window.document.title = 'SearchMe';
+  }, []);
+
   if (GroupMe.authenticated) {
     return <Navigate to="/" />
   }

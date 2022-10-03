@@ -63,8 +63,10 @@ export function Chat(props: Props): ReactElement {
   useEffect(() => {
     if (id) {
       GroupMe.getChat(props.type, id)
-        .then(setChat)
-        .catch(() => window.location.href = '/');
+        .then(chat => {
+          setChat(chat);
+          window.document.title = `SearchMe - ${chat.name}`;
+        }).catch(() => window.location.href = '/');
     }
   }, [props.type, id]);
 

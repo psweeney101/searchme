@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Header, Image, Item } from 'semantic-ui-react';
 import { GroupMe } from 'src/services';
@@ -8,6 +8,10 @@ import logo from 'src/assets/searchme-logo.png';
 type Props = {};
 
 export function About(props: Props): ReactElement {
+  useEffect(() => {
+    window.document.title = 'SearchMe';
+  }, []);
+
   return (
     <div style={styles.wrapper}>
       <div>
