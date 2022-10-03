@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { Accordion, Button, Divider, Dropdown, Feed, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
+import { Accordion, Button, Divider, Dropdown, Header, Input, Message as Warning, Progress } from 'semantic-ui-react';
 import { DebounceInput } from 'react-debounce-input';
 import { compareAsc, compareDesc, endOfDay, isAfter, isBefore, startOfDay } from 'date-fns';
 import { GMChatType, GMChat, GMMessage, MessageSort, Styles, SetSearchParams, SearchParam } from 'src/interfaces';
@@ -307,16 +307,14 @@ export function Chat(props: Props): ReactElement {
                   messagesPerPage={MESSAGES_PER_PAGE}
                   setSearchParams={setSearchParams}
                 />
-                <Feed>
-                  {paginated.map(message =>
-                    <Message
-                      key={message.id}
-                      chat={chat}
-                      message={message}
-                      query={query}
-                      setSearchParams={setSearchParams}
-                    />)}
-                </Feed>
+                {paginated.map(message =>
+                  <Message
+                    key={message.id}
+                    chat={chat}
+                    message={message}
+                    query={query}
+                    setSearchParams={setSearchParams}
+                  />)}
                 <Paginator
                   page={page}
                   displayed={paginated.length}

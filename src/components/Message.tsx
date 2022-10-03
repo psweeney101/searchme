@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { ReactElement, useCallback, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Button, Feed, Icon, Modal, Popup } from 'semantic-ui-react';
+import { Button, Feed, Icon, Modal, Popup, Segment } from 'semantic-ui-react';
 import { GMChat, GMMessage, SearchParam, SetSearchParams, Styles } from 'src/interfaces';
 import { Avatar } from './Avatar';
 import { Highlight } from './Highlight';
@@ -46,27 +46,78 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
   }, [message.id]);
 
   return (
-    <Feed.Event id={message.id}>
-      <Feed.Label>
-        <Avatar
-          type={message.user.id === 'system' ? 'group' : 'user'}
-          src={message.user.image_url}
-          alt={message.user.name}
-        />
-      </Feed.Label>
-      <Feed.Content style={styles.content}>
-        <Feed.Summary>
-          <Feed.User as="span">{message.user.name}</Feed.User>
-          <Feed.Date
-            as={Button}
-            inverted
-            onClick={() => setSearchParams([{ name: SearchParam.MessageID, value: message.id }])}
-            tabIndex="0"
-          >
-            {format(message.created_at, 'MMM dd yyyy p')}
-          </Feed.Date>
-          <Feed.Date>
+    <Feed id={message.id} as={Segment}>
+      <Feed.Event>
+        <Feed.Label>
+          <Avatar
+            type={message.user.id === 'system' ? 'group' : 'user'}
+            src={message.user.image_url}
+            alt={message.user.name}
+          />
+        </Feed.Label>
+        <Feed.Content style={styles.content}>
+          <Feed.Summary>
+            <Feed.User as="span">{message.user.name}</Feed.User>
+            <Feed.Date
+              as={Button}
+              inverted
+              onClick={() => setSearchParams([{ name: SearchParam.MessageID, value: message.id }])}
+              tabIndex="0"
+            >
+              {format(message.created_at, 'MMM dd yyyy p')}
+            </Feed.Date>
+          </Feed.Summary>
+          <Feed.Extra text style={styles.text}>
+            <Highlight query={query} text={message.text} />
+          </Feed.Extra>
+          <Feed.Extra images style={styles.images}>{message.attachments.map((attachment, index) => {
+            if (attachment.type === 'image' || attachment.type === 'linked_image') {
+              return (
+                <div key={index} style={styles.mediaWrapper}>
+                  <img
+                    src={attachment.url}
+                    alt={message.text}
+                    style={styles.media}
+                    tabIndex={0}
+                    onClick={() => setModal(attachment)}
+                    onKeyDown={e => e.key === 'Enter' ? setModal(attachment) : null}
+                  />
+                </div>
+              );
+            }
+            if (attachment.type === 'video') {
+              return (
+                <div key={index} style={styles.mediaWrapper}>
+                  <video
+                    src={`${attachment.url}#t=0.1`}
+                    style={styles.media}
+                    controls
+                    preload="metadata"
+                  />
+                </div>
+              );
+            }
+            return null;
+          })}
+          </Feed.Extra>
+          <Feed.Meta>
             <Popup
+              hoverable
+              on={['focus', 'hover']}
+              disabled={!message.liked_by.length}
+              trigger={(
+                <span tabIndex={0}>
+                  <Icon name="like" />
+                  {message.liked_by.length}
+                </span>
+              )}
+            >
+              <Popup.Content style={styles.likers}>
+                {message.liked_by.map(getUser)}
+              </Popup.Content>
+            </Popup>
+            <Popup
+              content="Copy link to message"
               trigger={
                 <Icon
                   name="linkify"
@@ -76,84 +127,32 @@ export function Message({ chat, message, query, setSearchParams }: Props): React
                   onKeyDown={(e: KeyboardEvent) => e.key === 'Enter' ? copy() : null}
                 />
               }
-              content="Copy link to message"
-              size="mini"
             />
-          </Feed.Date>
-        </Feed.Summary>
-        <Feed.Extra text style={styles.text}>
-          <Highlight query={query} text={message.text} />
-        </Feed.Extra>
-        <Feed.Extra images style={styles.images}>{message.attachments.map((attachment, index) => {
-          if (attachment.type === 'image' || attachment.type === 'linked_image') {
-            return (
-              <div key={index} style={styles.mediaWrapper}>
-                <img
-                  src={attachment.url}
-                  alt={message.text}
-                  style={styles.media}
-                  tabIndex={0}
-                  onClick={() => setModal(attachment)}
-                  onKeyDown={e => e.key === 'Enter' ? setModal(attachment) : null }
-                />
-              </div>
-            );
-          }
-          if (attachment.type === 'video') {
-            return (
-              <div key={index} style={styles.mediaWrapper}>
-                <video
-                  src={`${attachment.url}#t=0.1`}
-                  style={styles.media}
-                  controls
-                  preload="metadata"
-                />
-              </div>
-            );
-          }
-          return null;
-        })}
-        </Feed.Extra>
-        <Feed.Meta>
-          <Popup
-            hoverable
-            on={['focus', 'hover']}
-            disabled={!message.liked_by.length}
-            trigger={(
-              <span tabIndex={0}>
-                <Icon name="like" />
-                {message.liked_by.length}
-              </span>
-            )}
-          >
-            <Popup.Content style={styles.likers}>
-              {message.liked_by.map(getUser)}
-            </Popup.Content>
-          </Popup>
-        </Feed.Meta>
-      </Feed.Content>
-      <Modal
-        basic
-        size="fullscreen"
-        style={styles.modal}
-        open={!!modal}
-        onClose={() => setModal(undefined)}
-      >
-        <Modal.Content image style={styles.modalContent}>
-          <img
-            src={modal?.url}
-            style={styles.modalImage}
-            alt="Attachment"
-          />
-          <Button
-            inverted
-            style={styles.modalClose}
-            onClick={() => setModal(undefined)}
-            content="Close"
-          />
-        </Modal.Content>
-      </Modal>
-    </Feed.Event>
+          </Feed.Meta>
+        </Feed.Content>
+        <Modal
+          basic
+          size="fullscreen"
+          style={styles.modal}
+          open={!!modal}
+          onClose={() => setModal(undefined)}
+        >
+          <Modal.Content image style={styles.modalContent}>
+            <img
+              src={modal?.url}
+              style={styles.modalImage}
+              alt="Attachment"
+            />
+            <Button
+              inverted
+              style={styles.modalClose}
+              onClick={() => setModal(undefined)}
+              content="Close"
+            />
+          </Modal.Content>
+        </Modal>
+      </Feed.Event>
+    </Feed>
   );
 }
 
