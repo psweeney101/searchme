@@ -42,7 +42,7 @@ export class GroupMe {
   }
 
   /** Lists all Groups and DMs the user has access to */
-  static async listChats(): Promise<GMChatPreview[]> {
+  static async getChatPreviews(): Promise<GMChatPreview[]> {
     const groups = await this.fetch<{
       id: string;
       name: string;

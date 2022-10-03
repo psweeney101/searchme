@@ -13,7 +13,7 @@ export function Home(props: Props): ReactElement {
   const [filtered, setFiltered] = useState<typeof chats>(chats);
 
   useMemo(() => {
-    GroupMe.listChats().then(setChats);
+    GroupMe.getChatPreviews().then(setChats);
   }, []);
 
   useEffect(() => {

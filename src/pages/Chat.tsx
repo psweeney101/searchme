@@ -71,12 +71,16 @@ export function Chat(props: Props): ReactElement {
   // Re-fetch messages after chat is set
   useEffect(() => {
     if (chat) {
-      GroupMe.getMessages(chat.type, chat.id, chat.num_messages, setProgress)
-        .then(setMessages);
+      GroupMe.getMessages(chat.type, chat.id, chat.num_messages, setProgress).then(messages => {
+        // Ensure all members are accounted for, since some may have left
+        const members = new Map<GMChat['members'][0]['id'], GMChat['members'][0]>();
+        chat.members.forEach(member => members.set(member.id, member));
+        messages.reverse().forEach(message => members.has(message.user.id) ? null : members.set(message.user.id, message.user));
+        chat.members = Array.from(members.values()).sort((a, b) => a.name.localeCompare(b.name));
+        setMessages(messages);
+      });
     }
   }, [chat]);
-
-  // http://localhost:3000/group/30395168?sort=Longest&startDate=1%2F20%2F2015&endDate=1%2F20%2F2022&sentBy=31501754&likedBy=35424868&attachments=image%2Clinked_image%2Cevent&page=2
 
   // Re-filter after messages are loaded or filter params change
   useEffect(() => {
