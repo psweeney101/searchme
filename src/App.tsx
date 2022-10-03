@@ -12,6 +12,7 @@ type State = {};
 export class App extends Component<Props, State> {
   render(): ReactNode {
     if (!GroupMe.authenticated) {
+      sessionStorage.setItem('redirect_url', window.location.href);
       return <Navigate to="/login" />;
     }
 
