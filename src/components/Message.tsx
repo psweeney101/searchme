@@ -174,6 +174,8 @@ const styles: Styles = {
   media: {
     height: '100%',
     width: 'auto',
+    maxWidth: '100%',
+    objectFit: 'contain',
     cursor: 'pointer',
     margin: 0,
   },

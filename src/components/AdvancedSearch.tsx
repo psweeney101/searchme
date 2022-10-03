@@ -1,6 +1,7 @@
 import { ReactElement, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { DebounceInput } from 'react-debounce-input';
 import { Accordion, Button, Dropdown, Form, Icon } from 'semantic-ui-react';
 import { GMChat, SearchParam, SetSearchParams, Styles } from 'src/interfaces';
 
@@ -97,6 +98,9 @@ export function AdvancedSearch(props: Props): ReactElement {
               selected={startDate}
               maxDate={endDate}
               onChange={date => props.setSearchParams([{ name: SearchParam.StartDate, value: date?.toLocaleDateString() }])}
+              customInput={
+                <DebounceInput debounceTimeout={500} onChange={() => { }} />
+              }
             />
           </Form.Field>
 
@@ -107,6 +111,9 @@ export function AdvancedSearch(props: Props): ReactElement {
               selected={endDate}
               minDate={startDate}
               onChange={date => props.setSearchParams([{ name: SearchParam.EndDate, value: date?.toLocaleDateString() }])}
+              customInput={
+                <DebounceInput debounceTimeout={500} onChange={() => { }} />
+              }
             />
           </Form.Field>
 
