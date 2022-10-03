@@ -15,6 +15,12 @@ export class App extends Component<Props, State> {
       return <Navigate to="/login" />;
     }
 
+    // Automatically redirect from Heroku to Vercel
+    if (window.location.href.includes('herokuapp.com')) {
+      window.alert('SearchMe is moving to https://searchme.vercel.app. Heroku is ending its free tier support on November 28, 2022. Starting then, this herokuapp.com URL will no longer be available. Redirecting now...');
+      window.location.href = "https://searchme.vercel.app";
+    }
+
     return (
       <div style={styles.wrapper}>
 
