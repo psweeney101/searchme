@@ -34,7 +34,7 @@ export function Chat(props: Props): ReactElement {
         searchParams.delete(name);
       }
     });
-    unstableSetSearchParams(searchParams);
+    unstableSetSearchParams(searchParams, { replace: true });
   }, []);
 
   // Metadata states
@@ -191,7 +191,7 @@ export function Chat(props: Props): ReactElement {
             el.scrollIntoView({ behavior: 'smooth' });
           }
           setSearchParams([{ name: SearchParam.MessageID }]);
-        });
+        }, 100);
       }
 
     }
