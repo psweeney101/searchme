@@ -88,7 +88,6 @@ export function Chat(props: Props): ReactElement {
 
       // If jumping to message, clear out filters
       if (messageID && (query || startDate || endDate || sentBy || likedBy || attachments)) {
-        console.log('jump!!');
         return setSearchParams([
           { name: SearchParam.Query },
           { name: SearchParam.StartDate },
@@ -99,7 +98,6 @@ export function Chat(props: Props): ReactElement {
         ]);
       }
 
-      console.log('filter!');
       const start = startDate && startOfDay(new Date(startDate));
       const end = endDate && endOfDay(new Date(endDate));
       const senders = sentBy.split(',').filter(s => s);
@@ -127,7 +125,6 @@ export function Chat(props: Props): ReactElement {
         return setSearchParams([{ name: SearchParam.Sort }]);
       }
 
-      console.log('sort!');
       const defaultSort: (a: GMMessage, b: GMMessage) => number = (a, b) => compareDesc(a.created_at, b.created_at);
       let sortFn = defaultSort;
       if (sort === MessageSort.LeastRecent) {
@@ -157,7 +154,6 @@ export function Chat(props: Props): ReactElement {
   // Re-page after sorting or page changes
   useEffect(() => {
     if (sorted) {
-      console.log('page');
       // Ensure page is valid
       const maxPage = sorted.length ? Math.ceil(sorted.length / MESSAGES_PER_PAGE) : 1;
       if (page < 1) {
@@ -171,9 +167,7 @@ export function Chat(props: Props): ReactElement {
         const index = sorted.findIndex(m => m.id === messageID);
         if (index > -1) {
           const messagePage = Math.ceil((index + 1) / MESSAGES_PER_PAGE);
-          console.log(messagePage);
           if (page !== messagePage) {
-            console.log(messagePage);
             return setSearchParams([
               { name: SearchParam.Page, value: messagePage },
             ]);
