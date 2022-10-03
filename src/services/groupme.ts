@@ -8,6 +8,8 @@ export class GroupMe {
   static API_URL = 'https://api.groupme.com/v3';
   /** URL for authenticating with GroupMe */
   static LOGIN_URL = process.env.REACT_APP_GROUPME_URL;
+  /** A list of previews, which is saved when navigating */
+  static previews: GMChatPreview[] | null = null;
 
   /** The access token for all API requests */
   static get access_token(): string | null {
@@ -65,7 +67,7 @@ export class GroupMe {
       created_at: number;
     }[]>(`chats?per_page=100`);
 
-    const previews: GMChatPreview[] = groups.map(group => ({
+    this.previews = groups.map(group => ({
       type: GMChatType.Group,
       id: group.id,
       name: group.name,
@@ -79,7 +81,7 @@ export class GroupMe {
       updated_at: new Date((chat.last_message.created_at || chat.created_at) * 1000)
     }))).sort((a, b) => +b.updated_at - +a.updated_at);
 
-    return previews;
+    return this.previews;
   }
 
   /** Gets a Chat's info */

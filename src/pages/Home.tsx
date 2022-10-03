@@ -1,5 +1,6 @@
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { DebounceInput } from 'react-debounce-input';
 import { Header, Input, List, Segment } from 'semantic-ui-react';
 import { GMChatPreview, GMChatType, Styles } from 'src/interfaces';
 import { compare, GroupMe, TimeAgo } from 'src/services';
@@ -9,7 +10,7 @@ type Props = {};
 
 export function Home(props: Props): ReactElement {
   const [search, setSearch] = useState('');
-  const [chats, setChats] = useState<GMChatPreview[] | null>();
+  const [chats, setChats] = useState<GMChatPreview[] | null>(GroupMe.previews);
   const [filtered, setFiltered] = useState<typeof chats>(chats);
 
   useEffect(() => {
@@ -39,16 +40,21 @@ export function Home(props: Props): ReactElement {
       <Input
         icon='users'
         placeholder="Search for a group..."
-        onChange={event => setSearch(event.target.value)}
         style={styles.search}
+        input={
+          <DebounceInput
+            debounceTimeout={100}
+            onChange={event => setSearch(event.target.value)}
+          />
+        }
       />
 
       <Segment>
 
         {
-          !filtered ? 'Loading...' :
-            filtered?.length === 0 ? 'No groups found.' :
-              filtered?.length === 0 ? `No results for "${search}"` : ''
+          !filtered ? 'Loading...'
+            : search && !filtered.length ? `No results for "${search}"`
+              : !filtered.length ? 'No groups found.' : ''
         }
 
         <List
