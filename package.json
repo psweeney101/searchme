@@ -2,7 +2,7 @@
   "name": "searchme",
   "version": "2.0.0",
   "private": true,
-  "description": "Search or download your GroupMe messages.",
+  "description": "Search your GroupMe messages.",
   "license": "MIT",
   "scripts": {
     "build": "react-scripts build",

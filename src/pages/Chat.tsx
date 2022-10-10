@@ -357,7 +357,7 @@ export function Chat(props: Props): ReactElement {
             total={chat?.num_messages}
             progress="percent"
             precision={0}
-            label={`Loading all ${chat?.num_messages.toLocaleString()} messages...`}
+            label={`Loading all ${chat?.num_messages.toLocaleString() || ''} messages...`}
           />
         )}
 

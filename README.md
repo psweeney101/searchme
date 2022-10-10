@@ -1,6 +1,6 @@
 # 💬🔎 SearchMe 
 
-Search or download your GroupMe messages.
+Search your GroupMe messages.
 
 ## 🏗 Setup
 
