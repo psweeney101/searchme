@@ -249,6 +249,11 @@ export class GroupMe {
 
       return response;
     } catch (error) {
+      if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+        await new Promise((resolve) => setTimeout(resolve, 100 * ++attempts));
+        return this.fetch(url, attempts);
+      }
+
       if (++attempts < 5) {
         return this.fetch(url, attempts);
       }

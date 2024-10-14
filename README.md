@@ -1,10 +1,11 @@
-# 💬🔎 SearchMe 
+# 💬🔎 SearchMe
 
 Search your GroupMe messages.
 
 ## 🏗 Setup
 
-Create an Application on the GroupMe Developer Portal: https://dev.groupme.com/applications. The Callback URL should be `http://<localhost|your-ip-address>:3000/callback`. Once that is created, create a .env file using the `Redirect URL` from your newly registered GroupMe Application:
+Create an Application on the GroupMe Developer Portal: https://dev.groupme.com/applications. The Callback URL should be `https://<localhost|your-ip-address>:3000/callback`. Once that is created, create a .env file using the `Redirect URL` from your newly registered GroupMe Application:
+
 ```bash
 REACT_APP_GROUPME_URL="https://oauth.groupme.com/oauth/authorize?client_id=YOUR_CLIENT_ID"
 HTTPS=true
@@ -17,7 +18,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [https://localhost:3000](https://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.\
 You will also see any lint errors in the console.
