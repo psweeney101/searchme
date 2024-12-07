@@ -171,6 +171,7 @@ export class GroupMe {
             }[];
           }[];
         }>(`groups/${chunk}/messages?limit=${limit}&before_id=${before_id}`);
+        if (!result) return messages;
 
         messages.push(...result.messages.map(message => ({
           id: message.id,
@@ -203,6 +204,7 @@ export class GroupMe {
             }[];
           }[];
         }>(`direct_messages?other_user_id=${id}&before_id=${before_id}`);
+        if (!result) return messages;
 
         messages.push(...result.direct_messages.map(message => ({
           id: message.id,
@@ -249,15 +251,23 @@ export class GroupMe {
 
       return response;
     } catch (error) {
+      // Rate limit
       if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
         await new Promise((resolve) => setTimeout(resolve, 100 * ++attempts));
         return this.fetch(url, attempts);
       }
 
+      // No messages left
+      if (error instanceof AxiosError && error.status === 304) {
+        return null as T;
+      }
+
+      // Just keep swimming
       if (++attempts < 5) {
         return this.fetch(url, attempts);
       }
 
+      // Welp
       if (error instanceof AxiosError) {
         toast.error(error.message);
       } else {
