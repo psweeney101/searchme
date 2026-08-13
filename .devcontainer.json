@@ -1,0 +1,4 @@
+{
+  "name": "searchme",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:5-22-trixie"
+}

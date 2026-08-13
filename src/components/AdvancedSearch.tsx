@@ -96,8 +96,8 @@ export function AdvancedSearch(props: Props): ReactElement {
             <DatePicker
               placeholderText="mm/dd/yyyy"
               selected={startDate}
-              maxDate={endDate}
-              onChange={date => props.setSearchParams([{ name: SearchParam.StartDate, value: date?.toLocaleDateString() }])}
+              maxDate={endDate ?? undefined}
+              onChange={(date: Date | null) => props.setSearchParams([{ name: SearchParam.StartDate, value: date?.toLocaleDateString() }])}
               customInput={
                 <DebounceInput debounceTimeout={500} onChange={() => { }} />
               }
@@ -109,8 +109,8 @@ export function AdvancedSearch(props: Props): ReactElement {
             <DatePicker
               placeholderText="mm/dd/yyyy"
               selected={endDate}
-              minDate={startDate}
-              onChange={date => props.setSearchParams([{ name: SearchParam.EndDate, value: date?.toLocaleDateString() }])}
+              minDate={startDate ?? undefined}
+              onChange={(date: Date | null) => props.setSearchParams([{ name: SearchParam.EndDate, value: date?.toLocaleDateString() }])}
               customInput={
                 <DebounceInput debounceTimeout={500} onChange={() => { }} />
               }

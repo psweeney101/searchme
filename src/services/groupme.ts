@@ -252,7 +252,7 @@ export class GroupMe {
       return response;
     } catch (error) {
       // Rate limit
-      if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      if (error instanceof AxiosError && error.status === 429) {
         await new Promise((resolve) => setTimeout(resolve, 100 * ++attempts));
         return this.fetch(url, attempts);
       }
